@@ -54,3 +54,17 @@ if __name__ == "__main__":
     # 3. Test: O meşhur devrimsel emir bota veriliyor
     massive_command = "Bana Fransa bileti bak Paris e saat akşam 8 e bilet kes araç ayarla"
     print(bot.handle_message("EmreBurak", massive_command))
+# bot/bot_main.py içerisinde:
+
+if __name__ == "__main__":
+    bot = AnkaTelegramBot()
+    
+    # TELEGRAM SUNUCUSUNDAKİ ESKİ SESSİZ BAĞLANTILARI ZORLA KAPAT:
+    # Bu satır, Telegram'a "Eski ne varsa hepsini unut, sadece ben şu an seninle konuşuyorum" der.
+    # bot.telebot_instance.remove_webhook()  <-- Eğer bot nesnenin içinde telebot varsa bunu kullan.
+    
+    # Eğer bot.polling() kullanıyorsan, hemen öncesine şunu ekle:
+    # bot.remove_webhook()
+    
+    print("[=== ANKA TELEGRAM BOT SIMULATOR ACTIVE ===]")
+    # ... devamı ...
