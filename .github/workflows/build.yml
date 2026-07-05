@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Depoyu Çek
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: ARM Derleyicisini Kur
       run: |
@@ -22,7 +22,7 @@ jobs:
         arm-linux-gnueabi-gcc -static -Os core/boot.c -o anka_os.bin
 
     - name: Sistemi İndirmeye Sun
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: anka_os_imaji
         path: anka_os.bin
