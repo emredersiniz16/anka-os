@@ -1,0 +1,1 @@
+# Sinek'in rotası ve 1Hz ekran yönetimi
