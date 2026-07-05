@@ -1,3 +1,35 @@
+# simulator/anka_orchestrator.py
+
+# Yeni eklenen Elçi (Connector) importları
+from services.flight_api import FlightConnector
+from services.payment_api import PaymentConnector
+
+class AnkaOrchestrator:
+    def __init__(self):
+        # Elçileri atıyoruz
+        self.flight_service = FlightConnector()
+        self.pay_service = PaymentConnector()
+
+    def process_command(self, raw_text):
+        print(f"\n🧠 [ANKA CORE]: Emri parçalıyorum...")
+        
+        # 1. Uçuş Ajanı Entegrasyonu
+        if "bilet" in raw_text or "fransa" in raw_text:
+            print("✈️ [FLIGHT AGENT]: Uçuş verileri çekiliyor...")
+            flight_data = self.flight_service.search("Paris", "20:00")
+            print(f"✅ [FLIGHT]: {flight_data['flight_number']} bulundu: {flight_data['price']}")
+            
+            # 2. Ödeme Ajanı Entegrasyonu (Uçuş bulunduğu an tetiklenir)
+            print("\n💳 [PAY AGENT]: Ödeme köprüsü kuruluyor...")
+            token = self.pay_service.generate_virtual_card(flight_data['price'])
+            print(f"✨ [PAYMENT]: İşlem onayına hazır: {token}")
+
+        if not any(k in raw_text for k in ["bilet", "fransa"]):
+            print("❌ [ANKA CORE]: Ajanlar meşgul veya komut belirsiz.")
+            return
+
+        print("\n✨ [SYSTEM]: İrade uygulandı, işlemler tamamlandı.")
+
 import time
 
 class SubAgent:
