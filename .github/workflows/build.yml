@@ -1,0 +1,28 @@
+name: Phoenix Core Builder
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Depoyu Çek
+      uses: actions/checkout@v3
+
+    - name: ARM Derleyicisini Kur
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-linux-gnueabi
+
+    - name: Anka OS Çekirdeğini Derle
+      run: |
+        arm-linux-gnueabi-gcc -static -Os core/boot.c -o anka_os.bin
+
+    - name: Sistemi İndirmeye Sun
+      uses: actions/upload-artifact@v3
+      with:
+        name: anka_os_imaji
+        path: anka_os.bin
