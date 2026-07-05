@@ -31,40 +31,22 @@ class AnkaTelegramBot:
 
         # Kullanıcı uyandırdıktan sonra o efsane Fransa bileti gibi karmaşık emri verirse:
         print(f"🚀 [BOT LINK]: Emir çekirdeğe gönderiliyor...")
-        
-        # DÜZELTME: Artık orchestrator'dan gelen gerçek cevabı yakalıyoruz
         result = self.orchestrator.process_command(clean_text)
-        
-        # Ve bot, sadece sabit mesaj değil, beyinden gelen gerçek veriyi dönüyor
         return result
 
-# Bot Simülasyonunu Başlat
+# Botu Başlatma ve Hata Yönetimi
 if __name__ == "__main__":
-    bot = AnkaTelegramBot()
-    print("[=== ANKA TELEGRAM BOT SIMULATOR ACTIVE ===]")
+    # Render üzerinde 409 hatasını engellemek için önce web hook'ları temizle
+    # Eğer telebot kütüphanesini kullanıyorsan buraya import edip
+    # bot.remove_webhook() yazman gerekir.
     
-    # 1. Test: Uyku modundayken mesaj atılırsa
+    print("[=== ANKA TELEGRAM BOT SIMULATOR ACTIVE ===]")
+    bot = AnkaTelegramBot()
+    
+    # Testler
     print(bot.handle_message("EmreBurak", "Bana bilet bak"))
     print("-" * 50)
-    
-    # 2. Test: Sistem "Anka" diyerek uyandırılıyor
     print(bot.handle_message("EmreBurak", "Anka"))
     print("-" * 50)
-    
-    # 3. Test: O meşhur devrimsel emir bota veriliyor
     massive_command = "Bana Fransa bileti bak Paris e saat akşam 8 e bilet kes araç ayarla"
     print(bot.handle_message("EmreBurak", massive_command))
-# bot/bot_main.py içerisinde:
-
-if __name__ == "__main__":
-    bot = AnkaTelegramBot()
-    
-    # TELEGRAM SUNUCUSUNDAKİ ESKİ SESSİZ BAĞLANTILARI ZORLA KAPAT:
-    # Bu satır, Telegram'a "Eski ne varsa hepsini unut, sadece ben şu an seninle konuşuyorum" der.
-    # bot.telebot_instance.remove_webhook()  <-- Eğer bot nesnenin içinde telebot varsa bunu kullan.
-    
-    # Eğer bot.polling() kullanıyorsan, hemen öncesine şunu ekle:
-    # bot.remove_webhook()
-    
-    print("[=== ANKA TELEGRAM BOT SIMULATOR ACTIVE ===]")
-    # ... devamı ...
