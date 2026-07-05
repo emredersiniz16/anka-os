@@ -1,0 +1,1 @@
+# Sinek'in öğrenen zekası ve gardiyan modu
