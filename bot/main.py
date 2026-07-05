@@ -59,6 +59,29 @@ def handle_messages(message):
         
     bot.edit_message_text(chat_id=message.chat.id, message_id=thinking_msg.message_id, text=reply_text)
 
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import os
+
+# Render'ı kandırmak için sahte bir web sunucusu (kalkan) yaratıyoruz
+def keep_alive():
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Anka OS Kalkanı Aktif! Sistem tıkır tıkır calisiyor.")
+            
+    # Render'ın bize atadığı kapıyı (PORT) bul, bulamazsan 8080 yap
+    port = int(os.environ.get('PORT', 8080))
+    server = HTTPServer(('0.0.0.0', port), Handler)
+    server.serve_forever()
+
 if __name__ == "__main__":
-    print("Anka OS Telegram Botu aktif kanka! Sistem dinlemede...")
+    # Önce sahte web sunucusunu arka planda başlatıyoruz
+    print("🛡️ [SYSTEM]: Render kalkanı (Port) aktif ediliyor...")
+    threading.Thread(target=keep_alive, daemon=True).start()
+    
+    # Ve asıl beynimiz, telegram botumuz uyanıyor
+    print("🚀 [ANKA OS]: Telegram Botu aktif kanka! Sistem dinlemede...")
     bot.infinity_polling()
