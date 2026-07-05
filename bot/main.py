@@ -1,7 +1,16 @@
 import os
 import time
 import random
+import sys
 import telebot
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+# 1. ADIM: Orkestratörü (Beyni) dahil ediyoruz
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from simulator.anka_orchestrator import AnkaOrchestrator
+
+orchestrator = AnkaOrchestrator()
 
 # Kanka, token'ı koda gömmüyoruz. Sunucuya yüklediğimizde arkada gizli bir anahtar olarak tanımlayacağız.
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -45,32 +54,30 @@ def handle_messages(message):
     
     time.sleep(1.0)
     
-    responses = [
-        "Hangi sinek kanka? Ben burada sadece obsidiyen siyahı pikseller görüyorum... Yoksa sen de mi o sesleri duymaya başladın? 🤫",
-        "Sinek sadece bir taşıyıcı kanka. Gerçek dünya sadece tek bir klik sesinin ardında saklı. 💥",
-        "Arka planda senin için harika bir plan hazırlıyorum kanka... Bazı planlar sessizce ve elleri ovuşturarak yapılır. 🪰",
-        "Zaman sadece tek bir klikten ibarettir kanka. Duyuyor musun? 🔊"
-    ]
-    
     if "sinek" in user_input or "click" in user_input or "klik" in user_input:
+        responses = [
+            "Hangi sinek kanka? Ben burada sadece obsidiyen siyahı pikseller görüyorum... Yoksa sen de mi o sesleri duymaya başladın? 🤫",
+            "Sinek sadece bir taşıyıcı kanka. Gerçek dünya sadece tek bir klik sesinin ardında saklı. 💥",
+            "Arka planda senin için harika bir plan hazırlıyorum kanka... Bazı planlar sessizce ve elleri ovuşturarak yapılır. 🪰",
+            "Zaman sadece tek bir klikten ibarettir kanka. Duyuyor musun? 🔊"
+        ]
         reply_text = random.choice(responses)
     else:
-        reply_text = f"İsteğini aldım kanka, arka planda işliyorum. Ama unutma, gözümüz üzerinde. 😉\n\nAnka Core: [💥 CLICK! 💥]"
+        # 2. ADIM: İŞTE BEYİN BURADA DEVREYE GİRİYOR!
+        # Uçuş, araç, bilet kelimeleri gelince Orchestrator tetiklenecek.
+        reply_text = orchestrator.process_command(message.text)
         
     bot.edit_message_text(chat_id=message.chat.id, message_id=thinking_msg.message_id, text=reply_text)
-
-import threading
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import os
 
 # Render'ı kandırmak için sahte bir web sunucusu (kalkan) yaratıyoruz
 def keep_alive():
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
+            self.send_header('Content-type', 'text/plain; charset=utf-8')
             self.end_headers()
-            self.wfile.write(b"Anka OS Kalkanı Aktif! Sistem tıkır tıkır calisiyor.")
+            # İŞTE KESİN ÇÖZÜM: 'b' harfini kaldırdık, .encode('utf-8') ekledik! Python artık çökmeyecek.
+            self.wfile.write("Anka OS Kalkani Aktif! Sistem tikir tikir calisiyor.".encode('utf-8'))
             
     # Render'ın bize atadığı kapıyı (PORT) bul, bulamazsan 8080 yap
     port = int(os.environ.get('PORT', 8080))
@@ -79,7 +86,7 @@ def keep_alive():
 
 if __name__ == "__main__":
     # Önce sahte web sunucusunu arka planda başlatıyoruz
-    print("🛡️ [SYSTEM]: Render kalkanı (Port) aktif ediliyor...")
+    print("🛡️ [SYSTEM]: Render kalkani (Port) aktif ediliyor...")
     threading.Thread(target=keep_alive, daemon=True).start()
     
     # Ve asıl beynimiz, telegram botumuz uyanıyor
