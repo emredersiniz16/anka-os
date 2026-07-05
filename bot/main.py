@@ -3,8 +3,12 @@ import time
 import random
 import telebot
 
-# Kanka, BotFather'dan aldığın o uzun Token'ı aşağıdaki iki tırnağın arasına yapıştır:
-BOT_TOKEN = "8551436765:AAFnQ0urkpmiZOwcYxRq0YcqRIBgxK49u9U"
+# Kanka, token'ı koda gömmüyoruz. Sunucuya yüklediğimizde arkada gizli bir anahtar olarak tanımlayacağız.
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+
+if not BOT_TOKEN:
+    print("❌ HATA: BOT_TOKEN bulunamadı! Lütfen çevre değişkenini (Environment Variable) tanımla kanka.")
+    exit(1)
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -12,7 +16,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 def send_welcome(message):
     boot_msg = (
         "⚙️ **[ANKA OS]: Donanım başlatılıyor...**\n\n"
-        "🪰 *[[[ bzzzzzzz... BZZZZZZT... bzzzz... ]]]*\n"
+        "🪰 *[[[ bzzzzzzz... BZZZZZZT... bzz... ]]]*\n"
         "...sny_09: Sinek kafesin içinde aranıyor...\n\n"
         "🔊 *>>> [💥 CLICK! 💥 ] <<<*\n"
         "[SYSTEM_INFO]: Döngü kırıldı. Eski sistem temizlendi.\n\n"
@@ -29,10 +33,8 @@ def send_welcome(message):
 def handle_messages(message):
     user_input = message.text.lower()
     
-    # Sinek animasyonunu animasyonlu mesaj güncellemesiyle simüle ediyoruz kanka
     thinking_msg = bot.reply_to(message, "🪰 ( . . )  *[Düşünüyor... Sinek durdu, sana bakıyor]*", parse_mode='Markdown')
     
-    # 1 saniye sonra sineğin hareketini değiştiriyoruz
     time.sleep(1.0)
     bot.edit_message_text(
         chat_id=message.chat.id, 
@@ -41,12 +43,11 @@ def handle_messages(message):
         parse_mode='Markdown'
     )
     
-    # 1 saniye daha bekleyip cevabı yapıştırıyoruz
     time.sleep(1.0)
     
     responses = [
         "Hangi sinek kanka? Ben burada sadece obsidiyen siyahı pikseller görüyorum... Yoksa sen de mi o sesleri duymaya başladın? 🤫",
-        "Sinek sadece bir taşıyıcı kanka. Gerçek dunya sadece tek bir klik sesinin ardında saklı. 💥",
+        "Sinek sadece bir taşıyıcı kanka. Gerçek dünya sadece tek bir klik sesinin ardında saklı. 💥",
         "Arka planda senin için harika bir plan hazırlıyorum kanka... Bazı planlar sessizce ve elleri ovuşturarak yapılır. 🪰",
         "Zaman sadece tek bir klikten ibarettir kanka. Duyuyor musun? 🔊"
     ]
