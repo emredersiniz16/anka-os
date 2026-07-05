@@ -31,10 +31,12 @@ class AnkaTelegramBot:
 
         # Kullanıcı uyandırdıktan sonra o efsane Fransa bileti gibi karmaşık emri verirse:
         print(f"🚀 [BOT LINK]: Emir çekirdeğe gönderiliyor...")
-        # Simülatördeki orkestratörü tetikliyoruz
-        self.orchestrator.process_command(clean_text)
         
-        return f"✅ [ANKA OS]: Ajanlar arka planda otonom olarak devreye girdi. İşlem tamamlandı kanka!"
+        # DÜZELTME: Artık orchestrator'dan gelen gerçek cevabı yakalıyoruz
+        result = self.orchestrator.process_command(clean_text)
+        
+        # Ve bot, sadece sabit mesaj değil, beyinden gelen gerçek veriyi dönüyor
+        return result
 
 # Bot Simülasyonunu Başlat
 if __name__ == "__main__":
