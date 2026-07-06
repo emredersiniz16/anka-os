@@ -40,13 +40,11 @@ def scan_wifi():
     except:
         return []
 
-# --- HACKER MODÜLLERİ (FAZ 2) ---
+# --- HACKER MODÜLLERİ ---
 def trigger_qr_scan():
-    # Kamera üzerinden QR okuma protokolü
     return "🪰 Kamera aktif, ağ karekodunu göster kanka, şifreyi çözüyorum..."
 
 def trigger_wps_attack():
-    # WPS üzerinden ağa sızma protokolü
     subprocess.Popen(["wpa_cli", "wps_pbc"])
     return "🪰 WPS kapısı açık, modeme kilitleniyorum. 120 saniyen var, tuşa bas kanka!"
 
@@ -63,7 +61,9 @@ def process_intent(user_input):
             return trigger_wps_attack(), "HACKER_MODU"
         elif "tara" in text or "ağ" in text:
             aglar = scan_wifi()
-            return f"Radarda şunlar var: {', '.join(aglar)}. Karekod, WPS veya şifre ile sızalım mı?", "RADAR_MODU"
+            if aglar:
+                return f"Radarda şunlar var: {', '.join(aglar)}. Karekod, WPS veya şifre ile sızalım mı?", "RADAR_MODU"
+            return "Kanka internet yok, SIM kartı veya modemi kontrol et.", "KAYIP_BAĞLANTI"
 
     # --- DURUM 3: ANAHTAR BEKLEME ---
     if state == "WAITING_API_KEY":
