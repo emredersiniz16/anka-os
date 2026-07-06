@@ -15,7 +15,6 @@
 #define GUNDUZ_CERCEVE "\033[34m"
 #define RESET "\033[0m"
 
-// Sinek'in mesajlarını temaya göre çizer
 void draw_ui_window(const char *message, int is_day) {
     if (is_day) {
         printf("%s%s\n[--- YÜKSEK KONTRAST GÜNDÜZ ARAYÜZÜ ---]%s\n", GUNDUZ_ARKAPLAN, GUNDUZ_CERCEVE, RESET);
@@ -28,8 +27,8 @@ void draw_ui_window(const char *message, int is_day) {
     }
 }
 
-void ui_render(const char *last_message) {
-    // 1. Ekran bilgilerini al
+// Sinek durumu 0: Uçuyor, 1: Düşünüyor
+void ui_render(const char *last_message, int sinek_durumu) {
     int fb_fd = open("/dev/fb0", O_RDONLY);
     if (fb_fd < 0) return;
     struct fb_var_screeninfo vinfo;
@@ -40,23 +39,35 @@ void ui_render(const char *last_message) {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
-    // 2. Buton Koordinatlarını Hesapla
+    // 1. PROFESYONEL PANEL (Saat ve Pil)
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    printf("\n[PANEL] 🔋 88%% | ANKA OS | %02d:%02d\n", tm->tm_hour, tm->tm_min);
+
+    // 2. SİNEK KONUMLANDIRMA (Duruma göre)
+    char fly_cmd[512];
+    if (sinek_durumu == 1) { // Düşünürken ortaya gel
+        int fx = w/2 - (int)(100*scale);
+        int fy = h/2 - (int)(100*scale);
+        sprintf(fly_cmd, "fbi -d /dev/fb0 -g 200x200+%d+%d -a -noverbose -T 1 assets/sinek_dusunen.GIF &", fx, fy);
+    } else { // Uçarken sağ üste git
+        int fx = w - (int)(250*scale);
+        int fy = (int)(50*scale);
+        sprintf(fly_cmd, "fbi -d /dev/fb0 -g 150x150+%d+%d -a -noverbose -T 1 assets/sinek_ucuyor.GIF &", fx, fy);
+    }
+    system(fly_cmd);
+
+    // 3. BUTON ÇİZİMİ
     int btn_w = (int)(150 * scale);
     int btn_h = (int)(150 * scale);
     int btn_x = w - btn_w - (int)(50 * scale);
     int btn_y = h - btn_h - (int)(50 * scale);
+    char btn_cmd[512];
+    sprintf(btn_cmd, "fbi -d /dev/fb0 -g %dx%d+%d+%d -a -noverbose -T 1 assets/button.PNG &", btn_w, btn_h, btn_x, btn_y);
+    system(btn_cmd);
 
-    // 3. Buton Görselini Ekrana Bas
-    char cmd[512];
-    sprintf(cmd, "fbi -d /dev/fb0 -g %dx%d+%d+%d -a -noverbose -T 1 assets/button.PNG &", btn_w, btn_h, btn_x, btn_y);
-    system(cmd);
-
-    // 4. Tema (Saat kontrolü)
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    int is_day = (tm.tm_hour >= 7 && tm.tm_hour <= 18) ? 1 : 0;
-    
-    // 5. Mesajı Çiz
+    // 4. MESAJ VE TEMA
+    int is_day = (tm->tm_hour >= 7 && tm->tm_hour <= 18) ? 1 : 0;
     if (last_message != NULL) {
         draw_ui_window(last_message, is_day);
     }
