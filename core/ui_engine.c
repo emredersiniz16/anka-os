@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
-#include "system_monitor.c" // 👈 İşte eksik parça burada, bunu ekle!
+#include "../system_monitor.c" // 👈 İşte eksik parça burada, bunu ekle!
 
 // --- TEMA RENKLERİ ---
 #define GECE_ARKAPLAN "\033[40m"
