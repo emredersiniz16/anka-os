@@ -12,8 +12,8 @@
 #include "agent_logic.c" 
 #include "input_handler.c"
 #include "audio_engine.c" 
-#include "camera_engine.c"  // YENİ: Sinek Gözü (Vision AI)
-#include "gallery_engine.c" // YENİ: Akıcı Galeri Motoru
+#include "camera_engine.c"  // Sinek Gözü (Vision AI)
+#include "gallery_engine.c" // Akıcı Galeri Motoru
 
 // --- ANA DİZİN MODÜLLERİ ---
 #include "../touch_engine.c"
@@ -66,57 +66,72 @@ int main() {
         gelen_mesaj[strcspn(gelen_mesaj, "\n")] = 0;
         if(strlen(gelen_mesaj) == 0) continue;
 
-        // === VISION AI (GÖZ) TETİKLEYİCİSİ ===
-        if (strstr(gelen_mesaj, "şuna bak") != NULL || strstr(gelen_mesaj, "fotoğraf") != NULL) {
-            trigger_vision_process(); // Sinek gözlerini açar (Log basar)
-            capture_image();          // Görüntüyü çeker ve kütüphaneye atar
-            speak("Görüntüyü aldım kanka. Kütüphaneye ekledim ve inceliyorum.");
+        // === CANLI YAYIN (KAMERA AÇ/KAPAT) ===
+        if (strstr(gelen_mesaj, "kamerayı aç") != NULL || strstr(gelen_mesaj, "canlı yayın") != NULL) {
+            speak("Gözlerimi açıyorum kanka. Kapatmak istersen 'kamerayı kapat' demen yeterli.");
+            open_live_camera();
+            continue; // Döngü başa döner, cihaz artık bir aynadır
         }
-        
-        // === AKICI GALERİ (FLUID GALLERY) TETİKLEYİCİSİ ===
+        else if (strstr(gelen_mesaj, "kamerayı kapat") != NULL || strstr(gelen_mesaj, "yayını kapat") != NULL) {
+            speak("Gözleri kapattım kanka. Ben buradayım.");
+            close_live_camera();
+            update_fly_animation(current_state, w, h, scale); // Sinek ekrana geri döner
+            continue; 
+        }
+
+        // === AKICI GALERİ (FLUID GALLERY) ===
         else if (strstr(gelen_mesaj, "galeri") != NULL || strstr(gelen_mesaj, "kütüphane") != NULL) {
-            speak("Kütüphaneyi açıyorum. Çıkmak için ekranın en altına dokun.");
+            speak("Kütüphaneyi açıyorum. Çıkmak için ekranın altına dokun.");
             load_gallery();
             show_current_photo();
             
-            // --- Akıllı Jest (Smart Swipe) Döngüsü ---
             int touch_x = 0, touch_y = 0;
             int ilk_dokunus_x = -1;
             
             while(1) {
                 if (get_touch_event(&touch_x, &touch_y)) {
-                    // Ekranda en aşağıya dokunursa galeriden çık
-                    if (touch_y > h - 200) {
+                    if (touch_y > h - 200) { // Çıkış noktası
                         speak("Galeriden çıkılıyor.");
                         break; 
                     }
 
                     if (ilk_dokunus_x == -1) {
-                        ilk_dokunus_x = touch_x; // İlk dokunma noktasını al
+                        ilk_dokunus_x = touch_x; 
                     } else {
-                        // Parmağın kayma yönünü hesapla
                         int swipe_durumu = detect_swipe(ilk_dokunus_x, touch_x, 50); 
                         if (swipe_durumu == 1) { 
-                            gallery_prev(); // Sağa kaydırma (Önceki)
+                            gallery_prev(); 
                             ilk_dokunus_x = -1; 
-                            usleep(300000); // Peş peşe atlamaması için ufak gecikme
+                            usleep(300000); 
                         } else if (swipe_durumu == 2) { 
-                            gallery_next(); // Sola kaydırma (Sonraki)
+                            gallery_next(); 
                             ilk_dokunus_x = -1;
                             usleep(300000);
                         }
                     }
                 } else {
-                    ilk_dokunus_x = -1; // Parmak çekilince sıfırla
+                    ilk_dokunus_x = -1; 
                 }
                 usleep(50000);
             }
             system("clear");
             update_fly_animation(current_state, w, h, scale);
-            continue; // Galeri bitince ana menüye dön
+            continue; 
+        }
+
+        // === VISION AI (ZEKA ANALİZİ İÇİN FOTOĞRAF ÇEKİMİ) ===
+        // Bu kelimeler geçtiğinde kod continue demez, fotoğrafı çeker ve aşağıdaki fly_brain'e paslar.
+        if (strstr(gelen_mesaj, "şuna bak") != NULL || strstr(gelen_mesaj, "fotoğraf") != NULL ||
+            strstr(gelen_mesaj, "bu ne") != NULL || strstr(gelen_mesaj, "çöz") != NULL ||
+            strstr(gelen_mesaj, "hesapla") != NULL || strstr(gelen_mesaj, "bitki") != NULL) {
+            
+            trigger_vision_process(); 
+            capture_image(); // Görüntüyü 'son_bakis.jpg' olarak kaydeder
+            speak("Gözüm üstünde kanka. İnceliyorum, biraz bekle...");
         }
 
         // --- 3. AŞAMA: BULUT ZEKASI (FLY BRAIN) ---
+        // Sinek, ister fotoğraf çekilmiş olsun ister sadece soru sorulmuş olsun, burayı çalıştırır.
         current_state = 1; // FLY_THINK
         update_fly_animation(current_state, w, h, scale);
 
