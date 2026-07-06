@@ -1,17 +1,28 @@
 #include <stdio.h>
+#include <unistd.h>
 
-// Artık koca koca render kodları yok, sadece dosya yolu ve oynatma var.
-void play_animation(const char* gif_name) {
-    // Sistem, donanımın video decoder'ını kullanarak gif'i tetikler.
-    printf("--- ANKA OS: Animasyon Oynatılıyor: %s ---\n", gif_name);
-    // Donanım seviyesinde: system("play_gif /assets/%s", gif_name);
-}
+// Sinek Animasyon Motoru
+// Cihazın ekranına Sinek'in anlık fiziksel durumunu (ASCII/Neon) çizer
 
-// Sinek durumuna göre sadece gif çağırıyoruz
-void update_fly_animation(int state) {
-    if (state == 0) { // FLY_IDLE
-        play_animation("sinek_ucuyor.gif");
-    } else if (state == 1) { // FLY_THINK
-        play_animation("sinek_dusunen.gif");
+void update_fly_animation(int current_state) {
+    // 0 = FLY_IDLE (Bekleme Modu)
+    if (current_state == 0) {
+        // Neon Camgöbeği (Cyan) renk kodu ile Sinek duruşu
+        printf("\n\033[1;36m[+] SENSÖRLER AÇIK: Ajan Sinek dinliyor...\033[0m\n");
+        printf("\033[1;36m");
+        printf("       \\_/\n");
+        printf("    -- (0) --\n");
+        printf("       / \\\n");
+        printf("\033[0m\n");
+    } 
+    // 1 = FLY_THINK (İşlem / Hack Modu)
+    else if (current_state == 1) {
+        // Elektrik Mavisi ve Sarı uyarı rengi ile İşlem duruşu
+        printf("\n\033[1;33m[⚡] VERİ AĞINA BAĞLANILIYOR / BEYİN İŞLİYOR...\033[0m\n");
+        printf("\033[1;34m"); 
+        printf("      \\ ⚙️ /\n");
+        printf("    == (X) ==\n");
+        printf("      / ⚙️ \\\n");
+        printf("\033[0m\n");
     }
 }
