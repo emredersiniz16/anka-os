@@ -2,25 +2,35 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// Sinek Görsel Motoru (GERÇEK GIF BAĞLANTISI)
-void update_fly_animation(int current_state) {
+// SINEK GÖRSEL VE KOORDİNAT MOTORU (MİLİMETRİK HİZALAMA)
+void update_fly_animation(int current_state, int screen_w, int screen_h, float scale) {
     
-    // Önce ekrandaki eski GIF'i temizle (üst üste binmemesi için)
+    // Ekrandaki eski görseli temizle ki yenisi tam üstüne otursun
     system("pkill -f fbi > /dev/null 2>&1");
 
+    // Sinek boyutları (Ölçeğe göre otomatik ayarlanır)
+    int fly_w = (int)(250 * scale); // Sinek genişliği varsayılan 250 piksel
+    int fly_h = (int)(250 * scale); // Sinek yüksekliği varsayılan 250 piksel
+
+    // Sinek Koordinatları (Ekranın sağ üst köşesindeki neon panelin içi)
+    int pos_x = screen_w - fly_w - (int)(50 * scale); // Sağdan 50 piksel içeride
+    int pos_y = (int)(80 * scale);                   // Üstten 80 piksel aşağıda
+
+    char command[1024];
+
     if (current_state == 0) {
-        // 0 = FLY_IDLE (Bekleme Modu)
-        printf("\n🪰 [GÖRSEL AKTİF]: assets/sinek_ucuyor.GIF ekrana yansıtılıyor...\n");
+        // 0 = FLY_IDLE: Senin yaptığın uçan sinek gifi devreye girer
+        printf("\n🪰 [GÖRSEL PANEL]: Uçan Sinek koordinatına oturtuluyor... (%d, %d) Boyut: %dx%d\n", pos_x, pos_y, fly_w, fly_h);
         
-        // Framebuffer üzerinden senin Uçan Sinek GIF'ini ekrana basar
-        // (Arka planda çalışması için komutun sonuna & koyduk)
-        system("fbi -d /dev/fb0 -a -noverbose -T 1 assets/sinek_ucuyor.GIF &"); 
+        // fbi komutuna geometri, konum ve zoom parametrelerini gömüyoruz
+        sprintf(command, "fbi -d /dev/fb0 -g %dx%d+%d+%d -a -noverbose -T 1 assets/sinek_ucuyor.GIF &", fly_w, fly_h, pos_x, pos_y);
+        system(command);
     } 
     else if (current_state == 1) {
-        // 1 = FLY_THINK (İşlem / Hack Modu)
-        printf("\n⚡ [GÖRSEL AKTİF]: assets/sinek_dusunen.GIF ekrana yansıtılıyor...\n");
+        // 1 = FLY_THINK: Elini yüzünü ovuşturan o efsane düşünen sinek gifi
+        printf("\n⚡ [BEYİN PANELİ]: Düşünen Sinek elini yüzünü ovuşturuyor... Konum: (%d, %d)\n", pos_x, pos_y);
         
-        // Cihaz düşünürken senin Düşünen Sinek GIF'ini devreye sokar
-        system("fbi -d /dev/fb0 -a -noverbose -T 1 assets/sinek_dusunen.GIF &");
+        sprintf(command, "fbi -d /dev/fb0 -g %dx%d+%d+%d -a -noverbose -T 1 assets/sinek_dusunen.GIF &", fly_w, fly_h, pos_x, pos_y);
+        system(command);
     }
 }
