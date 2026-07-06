@@ -47,11 +47,11 @@ int main() {
 
     while(1) {
         // --- 1. AŞAMA: SESLİ UYANDIRMA (HEY SİNEK) ---
-        record_audio(3); // 3 saniye dinle
+        record_audio(3); 
         if (check_wake_word("/tmp/anka_voice.wav")) {
-            printf("🚀 [ANKA]: Efendim kanka, seni dinliyorum?\n");
+            // Yazılı cevap yerine direkt sesli yanıt veriyoruz!
+            speak("Efendim kanka, seni dinliyorum."); 
         } else {
-            // Uyandırma kelimesi yoksa pusuya devam et (Döngünün başı)
             continue; 
         }
 
@@ -76,7 +76,9 @@ int main() {
             pclose(fp);
         }
 
+        // --- 3. AŞAMA: YANITI SESLENDİR ---
         ui_render(final_message, current_state);
+        speak(final_message); // Buluttan gelen zeka cevabını sesli oku!
         
         current_state = 0; // FLY_IDLE
         update_fly_animation(current_state, w, h, scale);
