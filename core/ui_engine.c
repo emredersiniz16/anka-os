@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
+#include "system_monitor.c" // 👈 İşte eksik parça burada, bunu ekle!
 
 // --- TEMA RENKLERİ ---
 #define GECE_ARKAPLAN "\033[40m"
@@ -39,7 +40,8 @@ void ui_render(const char *last_message, int sinek_durumu) {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
-    // 1. ÜST PANEL (Dinamik Şarj Göstergesi)
+    // 1. ÜST PANEL (Şarj ve Saat)
+    // get_battery_level() artık system_monitor.c üzerinden geliyor
     int batt = get_battery_level();
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
@@ -48,7 +50,6 @@ void ui_render(const char *last_message, int sinek_durumu) {
         printf("\n[PANEL] 🔋 %d%% | ANKA OS | %02d:%02d\n", batt, tm->tm_hour, tm->tm_min);
     else
         printf("\n[PANEL] 🔋 --%% | ANKA OS | %02d:%02d\n", tm->tm_hour, tm->tm_min);
-
 
     // 2. SİNEK KONUMLANDIRMA (Duruma göre)
     char fly_cmd[512];
