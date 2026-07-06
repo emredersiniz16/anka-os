@@ -39,10 +39,16 @@ void ui_render(const char *last_message, int sinek_durumu) {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
-    // 1. PROFESYONEL PANEL (Saat ve Pil)
+    // 1. ÜST PANEL (Dinamik Şarj Göstergesi)
+    int batt = get_battery_level();
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
-    printf("\n[PANEL] 🔋 88%% | ANKA OS | %02d:%02d\n", tm->tm_hour, tm->tm_min);
+    
+    if (batt != -1)
+        printf("\n[PANEL] 🔋 %d%% | ANKA OS | %02d:%02d\n", batt, tm->tm_hour, tm->tm_min);
+    else
+        printf("\n[PANEL] 🔋 --%% | ANKA OS | %02d:%02d\n", tm->tm_hour, tm->tm_min);
+
 
     // 2. SİNEK KONUMLANDIRMA (Duruma göre)
     char fly_cmd[512];
