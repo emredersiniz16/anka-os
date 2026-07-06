@@ -22,6 +22,10 @@ int main() {
     freopen("debug.log", "w", stdout);
     freopen("debug.log", "w", stderr);
 
+    // --- İLK KURULUM KONTROLÜ (MASTER SETUP) ---
+    // Sistem arayüzü yüklemeden önce ajanımızı çağırıp kurulum yapılıp yapılmadığına bakar.
+    system("python3 agents/setup_engine.py");
+
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
     int fb_fd = open("/dev/fb0", O_RDWR);
@@ -49,8 +53,8 @@ int main() {
         // --- 1. AŞAMA: SESLİ UYANDIRMA (HEY SİNEK) ---
         record_audio(3); 
         if (check_wake_word("/tmp/anka_voice.wav")) {
-            // Yazılı cevap yerine direkt sesli yanıt veriyoruz!
-            speak("Efendim kanka, seni dinliyorum."); 
+            // İleride bu kısmı profile.json'dan okuyarak dinamik hale getirebiliriz!
+            speak("Efendim, seni dinliyorum."); 
         } else {
             continue; 
         }
