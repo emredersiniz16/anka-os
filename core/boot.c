@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/ioctl.h>
+#include "ui_engine.c
 
 // ANKA OS: FRAMEBUFFER SİNEK MOTORU
 // Yüklediğin PNG dosyalarını doğrudan ekran kartına yansıtır
