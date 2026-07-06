@@ -19,6 +19,12 @@
 
 // ANKA OS: HACKER SİNEK MOTORU (PROFESYONEL DASHBOARD SÜRÜMÜ)
 int main() {
+    // --- DEBUG LOG SİSTEMİ ---
+    // Her türlü çıktı artık debug.log dosyasına yazılır, cihazda göremesen bile 
+    // GitHub'da bu dosyayı kontrol ederek nerede hata aldığını anlarsın.
+    freopen("debug.log", "w", stdout);
+    freopen("debug.log", "w", stderr);
+
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
     int fb_fd = open("/dev/fb0", O_RDWR);
@@ -35,12 +41,13 @@ int main() {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
+    // Gönder Butonu Koordinatları (Ekranın sağ alt köşesi)
     int btn_w = (int)(150 * scale); 
     int btn_h = (int)(150 * scale); 
     int btn_x = w - btn_w - (int)(50 * scale); 
     int btn_y = h - btn_h - (int)(50 * scale); 
 
-    int current_state = 0; 
+    int current_state = 0; // FLY_IDLE
     update_fly_animation(current_state, w, h, scale);
 
     if (init_touch() < 0) {
@@ -70,7 +77,7 @@ int main() {
             usleep(50000); 
         }
 
-        current_state = 1; 
+        current_state = 1; // FLY_THINK
         update_fly_animation(current_state, w, h, scale);
 
         char command[512];
@@ -85,7 +92,7 @@ int main() {
 
         ui_render(final_message, current_state);
         
-        current_state = 0; 
+        current_state = 0; // FLY_IDLE
         update_fly_animation(current_state, w, h, scale);
     }
     return 0;
