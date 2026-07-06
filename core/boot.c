@@ -10,7 +10,7 @@
 #include "agent_logic.c" 
 #include "touch_engine.c" 
 
-// ANKA OS: HACKER SİNEK MOTORU (MANUEL YAZI + GÖNDER BUTONU SÜRÜMÜ)
+// ANKA OS: HACKER SİNEK MOTORU (PROFESYONEL DASHBOARD SÜRÜMÜ)
 void main() {
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
@@ -28,54 +28,43 @@ void main() {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
-    // Gönder Butonu Koordinatları (Ekranın sağ alt köşesi)
-    int btn_w = (int)(150 * scale); 
-    int btn_h = (int)(150 * scale); 
-    int btn_x = w - btn_w - (int)(50 * scale); 
-    int btn_y = h - btn_h - (int)(50 * scale); 
-
     int current_state = 0; // FLY_IDLE
     update_fly_animation(current_state, w, h, scale);
 
     if (init_touch() < 0) {
-        printf("⚠️ Uyarı: Dokunmatik sensör şu an pasif...\n");
+        printf("⚠️ Uyarı: Dokunmatik sensör pasif.\n");
     }
 
-    // ARKA PLAN SES SERVİSİ BİLGİSİ (Wake-Word mantığı simülasyonu)
-    printf("🎙️ [SİSTEM]: 'Hey Anka' veya 'Click' sesli uyandırma servisi arka planda aktif.\n");
+    printf("🎙️ [SİSTEM]: Sesli uyandırma servisi aktif.\n");
 
     while(1) {
         char gelen_mesaj[256];
         int touch_x = 0, touch_y = 0;
         
-        // 1. ADIM: KULLANICI METNİ YAZAR (Sessiz mod / Sanal Klavye simülasyonu)
+        // 1. ADIM: METİN GİRİŞİ
         printf("\n💬 [SESSİZ MOD] Mesajınızı yazın: ");
-        if (fgets(gelen_mesaj, sizeof(gelen_mesaj), stdin) == NULL) {
-            break;
-        }
+        if (fgets(gelen_mesaj, sizeof(gelen_mesaj), stdin) == NULL) break;
         
         gelen_mesaj[strcspn(gelen_mesaj, "\n")] = 0;
         if(strlen(gelen_mesaj) == 0) continue;
 
-        // 2. ADIM: GÖNDER BUTONUNA BASILMASI BEKLENİR
-        printf("👆 Mesaj hazır. İletmek için ekrandaki [GÖNDER] butonuna dokun...\n");
-        printf("   (Hedef: X:%d-%d, Y:%d-%d)\n", btn_x, btn_x+btn_w, btn_y, btn_y+btn_h);
-
+        // 2. ADIM: GÖNDER BUTONUNA DOKUNMA BEKLENİR
+        printf("👆 Mesaj hazır. Butona dokun...\n");
         while(1) {
             if (get_touch_event(&touch_x, &touch_y)) {
-                if (is_button_clicked(touch_x, touch_y, btn_x, btn_y, btn_w, btn_h)) {
-                    printf("\n🚀 [İLETİLDİ] Gönder butonuna basıldı! Mesaj Sinek'e gidiyor...\n");
-                    break; // Butona basıldı, döngüyü kır
+                // Burada buton koordinatlarını (btn_x, btn_y) ui_engine içinden alabiliriz 
+                // ama sabit değerlerle kontrolü buraya da ekledik
+                if (is_button_clicked(touch_x, touch_y, w-(int)(200*scale), h-(int)(200*scale), (int)(150*scale), (int)(150*scale))) {
+                    printf("\n🚀 [İLETİLDİ]\n");
+                    break;
                 }
             }
             usleep(50000); 
         }
 
-        // 3. ADIM: ANİMASYON VE ZEKA DEVREYE GİRER
+        // 3. ADIM: ZEKA VE GÖRSEL GÜNCELLEME
         current_state = 1; // FLY_THINK
         update_fly_animation(current_state, w, h, scale);
-
-        printf("🪰 Beyin tetikleniyor: '%s'\n", gelen_mesaj);
 
         char command[512];
         sprintf(command, "python3 agents/fly_brain.py \"%s\"", gelen_mesaj);
@@ -87,7 +76,8 @@ void main() {
             pclose(fp);
         }
 
-        ui_render(final_message);
+        // Profesyonel panel güncellenir: Mesaj + Durum (current_state)
+        ui_render(final_message, current_state);
         
         current_state = 0; // FLY_IDLE
         update_fly_animation(current_state, w, h, scale);
