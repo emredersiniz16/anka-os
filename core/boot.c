@@ -5,10 +5,17 @@
 #include <linux/fb.h>
 #include <sys/ioctl.h>
 #include <string.h>
+
+// --- CORE KLASÖRÜNDEKİLER ---
 #include "ui_engine.c"
 #include "anim_engine.c" 
 #include "agent_logic.c" 
-#include "touch_engine.c" 
+#include "input_handler.c"
+
+// --- ANA DİZİNDEKİLER (Bir üst klasöre çıkarak çağırıyoruz) ---
+#include "../touch_engine.c"
+#include "../system_monitor.c"
+#include "../battery_engine.c"
 
 // ANKA OS: HACKER SİNEK MOTORU (PROFESYONEL DASHBOARD SÜRÜMÜ)
 void main() {
@@ -28,6 +35,12 @@ void main() {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
+    // Gönder Butonu Koordinatları (Ekranın sağ alt köşesi)
+    int btn_w = (int)(150 * scale); 
+    int btn_h = (int)(150 * scale); 
+    int btn_x = w - btn_w - (int)(50 * scale); 
+    int btn_y = h - btn_h - (int)(50 * scale); 
+
     int current_state = 0; // FLY_IDLE
     update_fly_animation(current_state, w, h, scale);
 
@@ -41,20 +54,16 @@ void main() {
         char gelen_mesaj[256];
         int touch_x = 0, touch_y = 0;
         
-        // 1. ADIM: METİN GİRİŞİ
         printf("\n💬 [SESSİZ MOD] Mesajınızı yazın: ");
         if (fgets(gelen_mesaj, sizeof(gelen_mesaj), stdin) == NULL) break;
         
         gelen_mesaj[strcspn(gelen_mesaj, "\n")] = 0;
         if(strlen(gelen_mesaj) == 0) continue;
 
-        // 2. ADIM: GÖNDER BUTONUNA DOKUNMA BEKLENİR
         printf("👆 Mesaj hazır. Butona dokun...\n");
         while(1) {
             if (get_touch_event(&touch_x, &touch_y)) {
-                // Burada buton koordinatlarını (btn_x, btn_y) ui_engine içinden alabiliriz 
-                // ama sabit değerlerle kontrolü buraya da ekledik
-                if (is_button_clicked(touch_x, touch_y, w-(int)(200*scale), h-(int)(200*scale), (int)(150*scale), (int)(150*scale))) {
+                if (is_button_clicked(touch_x, touch_y, btn_x, btn_y, btn_w, btn_h)) {
                     printf("\n🚀 [İLETİLDİ]\n");
                     break;
                 }
@@ -62,7 +71,6 @@ void main() {
             usleep(50000); 
         }
 
-        // 3. ADIM: ZEKA VE GÖRSEL GÜNCELLEME
         current_state = 1; // FLY_THINK
         update_fly_animation(current_state, w, h, scale);
 
@@ -76,7 +84,6 @@ void main() {
             pclose(fp);
         }
 
-        // Profesyonel panel güncellenir: Mesaj + Durum (current_state)
         ui_render(final_message, current_state);
         
         current_state = 0; // FLY_IDLE
