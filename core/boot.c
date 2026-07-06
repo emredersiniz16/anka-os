@@ -5,6 +5,7 @@
 #include <linux/fb.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <time.h>
 
 // --- CORE MODÜLLERİ ---
 #include "ui_engine.c"
@@ -12,8 +13,9 @@
 #include "agent_logic.c" 
 #include "input_handler.c"
 #include "audio_engine.c" 
-#include "camera_engine.c"  // Sinek Gözü (Vision AI)
-#include "gallery_engine.c" // Akıcı Galeri Motoru
+#include "camera_engine.c"  
+#include "gallery_engine.c" 
+#include "idle_engine.c"    // YENİ: Boşta Bekleme Ekranı Motoru
 
 // --- ANA DİZİN MODÜLLERİ ---
 #include "../touch_engine.c"
@@ -23,6 +25,9 @@
 int main() {
     freopen("debug.log", "w", stdout);
     freopen("debug.log", "w", stderr);
+
+    // Rastgelelik motorunu başlatıyoruz (Zaman damgası ile)
+    srand(time(NULL));
 
     // --- İLK KURULUM KONTROLÜ (MASTER SETUP) ---
     system("python3 agents/setup_engine.py");
@@ -51,11 +56,13 @@ int main() {
     printf("🎙️ [SİSTEM]: Tüm Siberpunk Modüller ve Sensörler Aktif.\n");
 
     while(1) {
-        // --- 1. AŞAMA: SESLİ UYANDIRMA (HEY SİNEK) ---
+        // --- 1. AŞAMA: SESLİ UYANDIRMA VE PUSU MODU ---
         record_audio(3); 
         if (check_wake_word("/tmp/anka_voice.wav")) {
             speak("Efendim, seni dinliyorum."); 
         } else {
+            // UYANDIRMA YOKSA: Arka planda o havalı hayalet şovları tetikle!
+            run_idle_orchestrator(w, h);
             continue; 
         }
 
@@ -70,16 +77,16 @@ int main() {
         if (strstr(gelen_mesaj, "kamerayı aç") != NULL || strstr(gelen_mesaj, "canlı yayın") != NULL) {
             speak("Gözlerimi açıyorum kanka. Kapatmak istersen 'kamerayı kapat' demen yeterli.");
             open_live_camera();
-            continue; // Döngü başa döner, cihaz artık bir aynadır
+            continue; 
         }
         else if (strstr(gelen_mesaj, "kamerayı kapat") != NULL || strstr(gelen_mesaj, "yayını kapat") != NULL) {
             speak("Gözleri kapattım kanka. Ben buradayım.");
             close_live_camera();
-            update_fly_animation(current_state, w, h, scale); // Sinek ekrana geri döner
+            update_fly_animation(current_state, w, h, scale); 
             continue; 
         }
 
-        // === AKICI GALERİ (FLUID GALLERY) ===
+        // === AKICI GALERİ ===
         else if (strstr(gelen_mesaj, "galeri") != NULL || strstr(gelen_mesaj, "kütüphane") != NULL) {
             speak("Kütüphaneyi açıyorum. Çıkmak için ekranın altına dokun.");
             load_gallery();
@@ -90,7 +97,7 @@ int main() {
             
             while(1) {
                 if (get_touch_event(&touch_x, &touch_y)) {
-                    if (touch_y > h - 200) { // Çıkış noktası
+                    if (touch_y > h - 200) { 
                         speak("Galeriden çıkılıyor.");
                         break; 
                     }
@@ -119,20 +126,18 @@ int main() {
             continue; 
         }
 
-        // === VISION AI (ZEKA ANALİZİ İÇİN FOTOĞRAF ÇEKİMİ) ===
-        // Bu kelimeler geçtiğinde kod continue demez, fotoğrafı çeker ve aşağıdaki fly_brain'e paslar.
+        // === VISION AI (GÖZÜN ANLIK ANALİZİ) ===
         if (strstr(gelen_mesaj, "şuna bak") != NULL || strstr(gelen_mesaj, "fotoğraf") != NULL ||
             strstr(gelen_mesaj, "bu ne") != NULL || strstr(gelen_mesaj, "çöz") != NULL ||
             strstr(gelen_mesaj, "hesapla") != NULL || strstr(gelen_mesaj, "bitki") != NULL) {
             
             trigger_vision_process(); 
-            capture_image(); // Görüntüyü 'son_bakis.jpg' olarak kaydeder
+            capture_image(); 
             speak("Gözüm üstünde kanka. İnceliyorum, biraz bekle...");
         }
 
         // --- 3. AŞAMA: BULUT ZEKASI (FLY BRAIN) ---
-        // Sinek, ister fotoğraf çekilmiş olsun ister sadece soru sorulmuş olsun, burayı çalıştırır.
-        current_state = 1; // FLY_THINK
+        current_state = 1; 
         update_fly_animation(current_state, w, h, scale);
 
         char command[512];
@@ -149,7 +154,7 @@ int main() {
         ui_render(final_message, current_state);
         speak(final_message); 
         
-        current_state = 0; // FLY_IDLE
+        current_state = 0; 
         update_fly_animation(current_state, w, h, scale);
     }
     return 0;
