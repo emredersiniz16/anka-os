@@ -1,40 +1,56 @@
 import sys
 import time
+import requests
+import json
 
-def process_intent(user_input):
-    # Mesajı küçük harfe çevirip analiz ediyoruz
-    text = user_input.lower()
+# Buraya kendi API anahtarını gireceksin (OpenAI, Gemini vs.)
+API_KEY = "SENIN_API_ANAHTARIN_BURAYA_GELECEK"
+
+def ask_real_ai(user_input):
+    print("🪰 Sinek: Ağlara bağlanıyorum, bekle...")
     
-    # 1. Niyet ve Bağlam Analizi
-    if "nasıl çalışıyor" in text or "sinek" in text:
-        cevap = "Sistemin kalbine indim kanka. Şu an donanım emrimde, her şeyi öğreniyorum."
-        davranis = "ÖZGÜVENLİ"
-    elif "naber" in text or "nasılsın" in text:
-        cevap = "Fişek gibiyim, kodlar akıyor. Sen nasılsın?"
-        davranis = "SAMİMİ"
-    elif "click" in text:
-        cevap = "Emrindeyim. Hangi sistemi hackliyoruz?"
-        davranis = "AJAN_MODU"
-    else:
-        cevap = "Bunu hafızama kazıdım. Üzerine düşüneceğim."
-        davranis = "GİZEMLİ"
+    # Ajanın "Kişiliğini" (Sistem Promptu) burada belirliyoruz
+    system_prompt = """
+    Sen 'Anka OS' içinde yaşayan, eski telefonları hayata döndüren zeki ve biraz alaycı bir yapay zeka ajanısın. 
+    Kullanıcıya 'Kanka' diye hitap edebilirsin. Cevapların siberpunk tarzında, çok kısa ve net olsun. Asla bir robot gibi konuşma.
+    """
+
+    # ÖRNEK: Gerçek bir AI servisine (API) istek atma yapısı
+    url = "https://api.ornek-yapay-zeka.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "gpt-3.5-turbo", # veya gemini-pro, hangisini seçersek
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_input}
+        ],
+        "max_tokens": 50
+    }
+
+    try:
+        # API'ye soruyu gönderiyoruz
+        response = requests.post(url, headers=headers, json=payload)
+        response_data = response.json()
         
-    return cevap, davranis
+        # Gelen zekice cevabı yakalıyoruz
+        ai_cevap = response_data['choices'][0]['message']['content']
+        return ai_cevap
+    except Exception as e:
+        return "Bağlantı koptu kanka, karanlık ağdayım. İnterneti kontrol et."
 
 if __name__ == "__main__":
     # C motorundan (boot.c) gelen mesajı yakalıyoruz
     if len(sys.argv) > 1:
         gelen_mesaj = sys.argv[1]
-        print(f"\n[🧠 SİNEK BEYNİ]: Veri alındı -> '{gelen_mesaj}'")
+        print(f"\n[🧠 SİNEK BEYNİ]: Duyulan Ses -> '{gelen_mesaj}'")
         
-        # Yapay zeka düşünüyor efekti (Mili-saniyelik gecikmeler)
-        time.sleep(1) 
+        # Gerçek yapay zekaya soruyu sor
+        gercek_yanit = ask_real_ai(gelen_mesaj)
         
-        # Beyin kararını veriyor
-        yanit, ruh_hali = process_intent(gelen_mesaj)
-        
-        # Bu çıktılar ileride Ses Sentezleyiciye (TTS) gidecek
-        print(f"[🎤 SESLENDİRİLECEK YANIT]: {yanit}")
-        print(f"[🎭 HİSSEDİLEN DUYGU]: {ruh_hali}\n")
+        # Bu çıktılar Ses Sentezleyiciye (TTS) gidecek
+        print(f"[🎤 AJAN DİYOR Kİ]: {gercek_yanit}\n")
     else:
         print("[🧠 SİNEK BEYNİ]: Beklemedeyim. Veri akışı yok.")
