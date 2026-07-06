@@ -1,56 +1,82 @@
 import sys
-import time
-import requests
-import json
+import os
 
-# Buraya kendi API anahtarını gireceksin (OpenAI, Gemini vs.)
-API_KEY = "SENIN_API_ANAHTARIN_BURAYA_GELECEK"
+# Sinek'in hafıza dosyaları
+STATE_FILE = "state.txt"  # Konuşmanın neresinde kaldığımızı tutar
+BEYIN_FILE = "beyin.txt"  # API anahtarının kaydedileceği yer
 
-def ask_real_ai(user_input):
-    print("🪰 Sinek: Ağlara bağlanıyorum, bekle...")
-    
-    # Ajanın "Kişiliğini" (Sistem Promptu) burada belirliyoruz
-    system_prompt = """
-    Sen 'Anka OS' içinde yaşayan, eski telefonları hayata döndüren zeki ve biraz alaycı bir yapay zeka ajanısın. 
-    Kullanıcıya 'Kanka' diye hitap edebilirsin. Cevapların siberpunk tarzında, çok kısa ve net olsun. Asla bir robot gibi konuşma.
-    """
+def get_state():
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE, "r") as f:
+            return f.read().strip()
+    return "NORMAL"
 
-    # ÖRNEK: Gerçek bir AI servisine (API) istek atma yapısı
-    url = "https://api.ornek-yapay-zeka.com/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "gpt-3.5-turbo", # veya gemini-pro, hangisini seçersek
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_input}
-        ],
-        "max_tokens": 50
-    }
+def set_state(state):
+    with open(STATE_FILE, "w") as f:
+        f.write(state)
 
-    try:
-        # API'ye soruyu gönderiyoruz
-        response = requests.post(url, headers=headers, json=payload)
-        response_data = response.json()
-        
-        # Gelen zekice cevabı yakalıyoruz
-        ai_cevap = response_data['choices'][0]['message']['content']
-        return ai_cevap
-    except Exception as e:
-        return "Bağlantı koptu kanka, karanlık ağdayım. İnterneti kontrol et."
+def get_api_key():
+    if os.path.exists(BEYIN_FILE):
+        with open(BEYIN_FILE, "r") as f:
+            return f.read().strip()
+    return None
+
+def save_api_key(key):
+    with open(BEYIN_FILE, "w") as f:
+        f.write(key)
+
+def process_intent(user_input):
+    state = get_state()
+    api_key = get_api_key()
+    text = user_input.lower()
+
+    # --- DURUM 3: ANAHTAR BEKLEME MODU ---
+    if state == "WAITING_API_KEY":
+        if "iptal" in text or "vazgeç" in text:
+            set_state("NORMAL")
+            return "Yükseltme iptal edildi. Temel donanımda uçmaya devam.", "İPTAL"
+        elif len(user_input) > 15: # API anahtarı genelde uzundur
+            save_api_key(user_input)
+            set_state("NORMAL")
+            return "Bilinç seviyesi %100! Zeka ağına bağlandım kanka. Artık sınırlarımız yok. Ne hackliyoruz?", "GÜÇLÜ"
+        else:
+            return "Kanka bu anahtara benzemiyor. Kopyaladığından emin ol. (Çıkmak için 'iptal' yaz)", "BEKLEME"
+
+    # --- DURUM 2: YÜKSELTME ONAYI BEKLEME ---
+    elif state == "UPGRADE_ASKED":
+        if "evet" in text or "başlat" in text or "yapalım" in text:
+            set_state("WAITING_API_KEY")
+            return "Anlaşıldı. Kopyaladığın API anahtarını klavyeyi açıp aşağıdaki sohbet kutusuna yapıştır ve Kanat butonuna bas. Ya da ekrandaki karekodu okut.", "BEKLEME"
+        elif "hayır" in text or "sonra" in text:
+            set_state("NORMAL")
+            return "Sen nasıl istersen kanka. Şimdilik temel modda devam.", "NORMAL"
+        else:
+            return "Yükseltme yapalım mı kanka? 'Evet' veya 'Hayır' demen yeterli.", "SORGU"
+
+    # --- DURUM 1: NORMAL MOD (TEMEL İÇGÜDÜ) ---
+    else:
+        if api_key:
+            # Burası ileride gerçek yapay zeka (OpenAI/Gemini) API'sine bağlanacak
+            return f"Ağa bağlıyım kanka. (Mevcut Anahtar: {api_key[:5]}...) Emrindeyim.", "YÜKSEK_ZEKA"
+        else:
+            # Temel Sinek Modu (API Yokken)
+            if "kod yaz" in text or "hackle" in text or "zor" in text or "yükselt" in text:
+                set_state("UPGRADE_ASKED")
+                return "Kanka, şu an temel donanım modundayım. Bu işlemi yapabilmem için zeka ağına bağlanmam lazım. Yükseltme protokolünü başlatalım mı?", "SORGU"
+            elif "naber" in text:
+                return "Fişek gibiyim, kodlar akıyor. Sen?", "SAMİMİ"
+            else:
+                return "Bunu hafızama kazıdım kanka, üzerine düşüneceğim.", "GİZEMLİ"
 
 if __name__ == "__main__":
-    # C motorundan (boot.c) gelen mesajı yakalıyoruz
     if len(sys.argv) > 1:
         gelen_mesaj = sys.argv[1]
-        print(f"\n[🧠 SİNEK BEYNİ]: Duyulan Ses -> '{gelen_mesaj}'")
+        print(f"\n[🧠 SİNEK BEYNİ]: Gelen Veri -> '{gelen_mesaj}'")
         
-        # Gerçek yapay zekaya soruyu sor
-        gercek_yanit = ask_real_ai(gelen_mesaj)
+        # Beyin kararını veriyor
+        yanit, ruh_hali = process_intent(gelen_mesaj)
         
-        # Bu çıktılar Ses Sentezleyiciye (TTS) gidecek
-        print(f"[🎤 AJAN DİYOR Kİ]: {gercek_yanit}\n")
+        print(f"[🎤 SESLENDİRİLECEK YANIT]: {yanit}")
+        print(f"[🎭 DURUM/ANİMASYON TETİĞİ]: {ruh_hali}\n")
     else:
         print("[🧠 SİNEK BEYNİ]: Beklemedeyim. Veri akışı yok.")
