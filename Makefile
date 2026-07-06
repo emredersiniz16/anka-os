@@ -1,14 +1,20 @@
 # ANKA OS - Donanım Derleyicisi
 # Cihazın içindeki Android'i silip bizi yazacak binary üretimi
 
-CC=arm-linux-gnueabi-gcc
-CFLAGS=-static -Os
+CC = arm-linux-gnueabi-gcc
+# core/ klasörünü include yoluna ekliyoruz ki #include "ui_engine.c" gibi yollar hata vermesin
+CFLAGS = -static -Os -I./core
 
-all: anka_os.bin
+# Tüm kaynak dosyaların listesi
+SRC = core/boot.c
 
-anka_os.bin: core/boot.c
-	$(CC) $(CFLAGS) core/boot.c -o anka_os.bin
+TARGET = anka_os.bin
+
+all: $(TARGET)
+
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 	@echo "🪰 [SYSTEM]: Anka OS çekirdeği mühürlendi (Binary Hazır)."
 
 clean:
-	rm -f anka_os.bin
+	rm -f $(TARGET)
