@@ -3,7 +3,7 @@
 #include <string.h>
 
 // ==========================================
-// ANKA OS - SES VE UYANDIRMA MOTORU
+// ANKA OS - SES VE UYANDIRMA MOTORU (TAM DONANIMLI)
 // ==========================================
 
 // 1. KULAK: Sesi mikrofondan alıp RAM'e kaydeder
@@ -23,7 +23,16 @@ void play_audio(const char* filepath) {
     system(cmd);
 }
 
-// 3. UYANDIRMA (WAKE WORD): Seste "Sinek" veya "Click" var mı?
+// 3. SESLENDİR: Metni sese çevir ve oku (TTS)
+void speak(const char* text) {
+    char cmd[512];
+    printf("[DONANIM] Seslendiriliyor: %s\n", text);
+    // espeak motoru ile metni doğrudan hoparlöre bas
+    sprintf(cmd, "espeak -v tr \"%s\" --stdout | aplay > /dev/null 2>&1", text);
+    system(cmd);
+}
+
+// 4. UYANDIRMA (WAKE WORD): Seste "Sinek" veya "Click" var mı?
 int check_wake_word(const char* wav_path) {
     char cmd[512];
     // Vosk ile ses analizi
