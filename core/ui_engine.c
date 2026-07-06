@@ -27,7 +27,6 @@ void ui_render(const char *last_message) {
     float scale = (float)w / 1080.0f;
 
     printf("Ajan Sinek aktif. Cihaz: %dx%d. Ölçek: %.2f\n", w, h, scale);
-    printf("UI: Sinek ve butonlar %dx%d ekranına göre hizalandı.\n", w, h);
     
     // Eğer Ajan Beyni'nden gelen bir mesaj varsa pencereyi güncelle
     if (last_message != NULL) {
