@@ -6,25 +6,25 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-// --- CORE KLASÖRÜNDEKİLER ---
+// --- CORE/ İÇİNDE OLDUĞUN İÇİN YANINDAKİLERİ İSİMLE ÇAĞIR ---
 #include "ui_engine.c"
 #include "anim_engine.c" 
 #include "agent_logic.c" 
 #include "input_handler.c"
 
-// --- ANA DİZİNDEKİLER (Bir üst klasöre çıkarak çağırıyoruz) ---
+// --- CORE/ İÇİNDEN ÇIKIP ANA DİZİNE GİTMEK İÇİN ../ KULLAN ---
 #include "../touch_engine.c"
 #include "../system_monitor.c"
 #include "../battery_engine.c"
 
 // ANKA OS: HACKER SİNEK MOTORU (PROFESYONEL DASHBOARD SÜRÜMÜ)
-void main() {
+int main() {
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
     int fb_fd = open("/dev/fb0", O_RDWR);
     if (fb_fd < 0) {
         printf("Hata: Framebuffer'a ulaşılamadı!\n");
-        return;
+        return 1;
     }
 
     struct fb_var_screeninfo vinfo;
@@ -35,13 +35,12 @@ void main() {
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
 
-    // Gönder Butonu Koordinatları (Ekranın sağ alt köşesi)
     int btn_w = (int)(150 * scale); 
     int btn_h = (int)(150 * scale); 
     int btn_x = w - btn_w - (int)(50 * scale); 
     int btn_y = h - btn_h - (int)(50 * scale); 
 
-    int current_state = 0; // FLY_IDLE
+    int current_state = 0; 
     update_fly_animation(current_state, w, h, scale);
 
     if (init_touch() < 0) {
@@ -71,7 +70,7 @@ void main() {
             usleep(50000); 
         }
 
-        current_state = 1; // FLY_THINK
+        current_state = 1; 
         update_fly_animation(current_state, w, h, scale);
 
         char command[512];
@@ -86,7 +85,8 @@ void main() {
 
         ui_render(final_message, current_state);
         
-        current_state = 0; // FLY_IDLE
+        current_state = 0; 
         update_fly_animation(current_state, w, h, scale);
     }
+    return 0;
 }
