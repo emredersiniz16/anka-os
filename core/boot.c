@@ -5,9 +5,10 @@
 #include <linux/fb.h>
 #include <sys/ioctl.h>
 #include "ui_engine.c"
-#include "anim_engine.c" // Animasyon motorunu ekledik
+#include "anim_engine.c" 
+#include "agent_logic.c" // 🧠 Zeka motorunu buraya bağladık
 
-// ANKA OS: ANİMASYONLU SİNEK MOTORU
+// ANKA OS: ANİMASYONLU VE ZEKİ SİNEK MOTORU
 void main() {
     printf("🔊 [💥 CLICK! 💥]\n");
 
@@ -23,14 +24,19 @@ void main() {
     update_fly_animation(current_state);
 
     while(1) {
-        // Simülasyon: Rastgele bir tetikleyici gelirse (örn: Butona basıldı)
-        // Burada gerçek input_handler devreye girecek
+        // --- SİMÜLASYON: Dışarıdan sesli komut geldiğini varsayıyoruz ---
+        char gelen_mesaj[] = "sinek bu nasıl çalışıyor";
         
-        // Örnek tetikleyici:
-        // current_state = 1; // FLY_THINK
-        // update_fly_animation(current_state);
+        // 1. Zeka Devrede: Gelen mesajın niyetini çöz (Kanka modu mu, komut mu?)
+        analyze_input(gelen_mesaj);
+        
+        // 2. Animasyon Devrede: Ajan düşünme moduna geçer ve gif değişir
+        current_state = 1; // 1 = FLY_THINK
+        update_fly_animation(current_state);
 
         printf("🪰 Ajan Sinek aktif durumda.\n");
-        sleep(1); 
+        
+        // Döngü saniyede bir ekranı boğmasın diye bekleme süresini 5 saniyeye çektim
+        sleep(5); 
     }
 }
