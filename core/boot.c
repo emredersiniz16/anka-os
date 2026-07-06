@@ -11,7 +11,7 @@
 #include "anim_engine.c" 
 #include "agent_logic.c" 
 #include "input_handler.c"
-#include "audio_engine.c" // Yeni eklediğimiz ses motoru!
+#include "audio_engine.c" 
 
 // --- ANA DİZİN MODÜLLERİ ---
 #include "../touch_engine.c"
@@ -43,25 +43,24 @@ int main() {
     update_fly_animation(current_state, w, h, scale);
     init_touch();
 
-    printf("🎙️ [SİSTEM]: Sesli uyandırma servisi aktif.\n");
+    printf("🎙️ [SİSTEM]: Sesli uyandırma ve hacker modülleri aktif.\n");
 
     while(1) {
-        // --- SESLİ UYANDIRMA (HEY SİNEK) ---
-        printf("\n👂 Sinek dinlemede... 'Hey Sinek' de ve uyar!\n");
-        // Kısa ses kaydı alıp kontrol etme mantığı burada devreye girecek
-        // (Şimdilik sesli motorun hazır olduğunu gösteriyoruz)
-        
+        // --- 1. AŞAMA: SESLİ UYANDIRMA (HEY SİNEK) ---
+        record_audio(3); // 3 saniye dinle
+        if (check_wake_word("/tmp/anka_voice.wav")) {
+            printf("🚀 [ANKA]: Efendim kanka, seni dinliyorum?\n");
+        } else {
+            // Uyandırma kelimesi yoksa pusuya devam et (Döngünün başı)
+            continue; 
+        }
+
+        // --- 2. AŞAMA: KOMUT İŞLEME ---
         char gelen_mesaj[256];
-        int touch_x = 0, touch_y = 0;
-        
         printf("\n💬 [SESSİZ MOD] Mesajınızı yazın: ");
         if (fgets(gelen_mesaj, sizeof(gelen_mesaj), stdin) == NULL) break;
-        
         gelen_mesaj[strcspn(gelen_mesaj, "\n")] = 0;
         if(strlen(gelen_mesaj) == 0) continue;
-
-        // "Efendim Kanka" simülasyonu (İleride ses motoruyla konuşacak)
-        printf("🚀 [ANKA]: Efendim kanka, hallediyorum...\n");
 
         current_state = 1; // FLY_THINK
         update_fly_animation(current_state, w, h, scale);
