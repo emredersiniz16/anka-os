@@ -9,7 +9,7 @@
 #include "anim_engine.c" 
 #include "agent_logic.c" 
 
-// ANKA OS: HACKER SİNEK MOTORU (FINAL ETKİLEŞİM)
+// ANKA OS: HACKER SİNEK MOTORU (TAM BİRLEŞİK SÜRÜM)
 void main() {
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
@@ -19,24 +19,34 @@ void main() {
         return;
     }
 
+    // Ekran çözünürlük ve ölçeklendirme bilgilerini donanımdan okuyoruz
+    struct fb_var_screeninfo vinfo;
+    ioctl(fb_fd, FBIOGET_VSCREENINFO, &vinfo);
+    close(fb_fd); // Bilgileri aldığımız için güvenli bir şekilde kapatıyoruz
+
+    int w = vinfo.xres;
+    int h = vinfo.yres;
+    float scale = (float)w / 1080.0f;
+
+    // Başlangıç: Sinek kendi koordinatında uçarak beklemeye başlar
     int current_state = 0; // FLY_IDLE
-    update_fly_animation(current_state);
+    update_fly_animation(current_state, w, h, scale);
 
     while(1) {
         char gelen_mesaj[256];
         
         // --- KANAT BUTONU VE KLAVYE DİNLEME HATTI ---
-        // Sistem burada durur ve senden metin girmeni bekler
         printf("\n[KANAT BUTONU] Emret kanka: ");
         if (fgets(gelen_mesaj, sizeof(gelen_mesaj), stdin) == NULL) {
             break;
         }
         
-        // Enter'a basıldığında oluşan alt satır karakterini temizle
         gelen_mesaj[strcspn(gelen_mesaj, "\n")] = 0;
-        
-        // Eğer hiçbir şey yazmadan Kanat'a basarsan başa dön, sistemi yorma
         if(strlen(gelen_mesaj) == 0) continue;
+
+        // 1. Animasyon Tetiklenir: Komut girildiği an Sinek elini yüzünü ovuşturma moduna geçer
+        current_state = 1; // FLY_THINK
+        update_fly_animation(current_state, w, h, scale);
 
         printf("🪰 Beyin tetikleniyor: '%s'\n", gelen_mesaj);
 
@@ -51,11 +61,11 @@ void main() {
             pclose(fp);
         }
 
-        // 1. Zeka Devrede: Sinek'in cevabını gece/gündüz temalı UI penceresine gönder
+        // 2. Zeka Devrede: Sinek'in ürettiği cevabı gece/gündüz temalı UI penceresine basıyoruz
         ui_render(final_message);
         
-        // 2. Animasyon Devrede: Düşünme moduna geç
-        current_state = 1; 
-        update_fly_animation(current_state);
+        // 3. İşlem Bitti: Cevap ekrana geldikten sonra Sinek tekrar normal uçuş moduna geri döner
+        current_state = 0; // FLY_IDLE
+        update_fly_animation(current_state, w, h, scale);
     }
 }
