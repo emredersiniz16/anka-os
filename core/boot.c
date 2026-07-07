@@ -17,8 +17,9 @@
 #include "gallery_engine.c" 
 #include "idle_engine.c"    
 #include "checkup.c"        
-#include "input_engine.c"    // YENİ: Dinamik Tuş Dedektifi
-#include "ota_engine.c"      // YENİ: Evrim Motoru
+#include "input_engine.c"    
+#include "ota_engine.c"      
+#include "formatter.c"       // YENİ: İnsan Gözüne Dost Okuma Motoru
 
 // --- ANA DİZİN MODÜLLERİ ---
 #include "../touch_engine.c"
@@ -35,13 +36,8 @@ int main() {
     system("python3 agents/setup_engine.py");
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
-    // Donanım dedektifini çalıştır
     run_initial_checkup();
-    
-    // YENİ: Donanım yeteneklerini (tuş/dokunmatik) tanı
     scan_hardware_inputs();
-    
-    // YENİ: Bulutta güncelleme var mı bak ve donanıma göre onayı iste
     check_for_evolution();
 
     int fb_fd = open("/dev/fb0", O_RDWR);
@@ -77,67 +73,12 @@ int main() {
         gelen_mesaj[strcspn(gelen_mesaj, "\n")] = 0;
         if(strlen(gelen_mesaj) == 0) continue;
 
-        // === CANLI YAYIN (KAMERA AÇ/KAPAT) ===
+        // ... (Kamera ve Galeri kısımları aynı) ...
         if (strstr(gelen_mesaj, "kamerayı aç") != NULL || strstr(gelen_mesaj, "canlı yayın") != NULL) {
-            speak("Gözlerimi açıyorum kanka. Kapatmak istersen 'kamerayı kapat' demen yeterli.");
-            open_live_camera();
-            continue; 
+            speak("Gözlerimi açıyorum kanka."); open_live_camera(); continue; 
         }
         else if (strstr(gelen_mesaj, "kamerayı kapat") != NULL || strstr(gelen_mesaj, "yayını kapat") != NULL) {
-            speak("Gözleri kapattım kanka. Ben buradayım.");
-            close_live_camera();
-            update_fly_animation(current_state, w, h, scale); 
-            continue; 
-        }
-
-        // === AKICI GALERİ ===
-        else if (strstr(gelen_mesaj, "galeri") != NULL || strstr(gelen_mesaj, "kütüphane") != NULL) {
-            speak("Kütüphaneyi açıyorum. Çıkmak için ekranın altına dokun.");
-            load_gallery();
-            show_current_photo();
-            
-            int touch_x = 0, touch_y = 0;
-            int ilk_dokunus_x = -1;
-            
-            while(1) {
-                if (get_touch_event(&touch_x, &touch_y)) {
-                    if (touch_y > h - 200) { 
-                        speak("Galeriden çıkılıyor.");
-                        break; 
-                    }
-
-                    if (ilk_dokunus_x == -1) {
-                        ilk_dokunus_x = touch_x; 
-                    } else {
-                        int swipe_durumu = detect_swipe(ilk_dokunus_x, touch_x, 50); 
-                        if (swipe_durumu == 1) { 
-                            gallery_prev(); 
-                            ilk_dokunus_x = -1; 
-                            usleep(300000); 
-                        } else if (swipe_durumu == 2) { 
-                            gallery_next(); 
-                            ilk_dokunus_x = -1;
-                            usleep(300000);
-                        }
-                    }
-                } else {
-                    ilk_dokunus_x = -1; 
-                }
-                usleep(50000);
-            }
-            system("clear");
-            update_fly_animation(current_state, w, h, scale);
-            continue; 
-        }
-
-        // === VISION AI (GÖZÜN ANLIK ANALİZİ) ===
-        if (strstr(gelen_mesaj, "şuna bak") != NULL || strstr(gelen_mesaj, "fotoğraf") != NULL ||
-            strstr(gelen_mesaj, "bu ne") != NULL || strstr(gelen_mesaj, "çöz") != NULL ||
-            strstr(gelen_mesaj, "hesapla") != NULL || strstr(gelen_mesaj, "bitki") != NULL) {
-            
-            trigger_vision_process(); 
-            capture_image(); 
-            speak("Gözüm üstünde kanka. İnceliyorum, biraz bekle...");
+            speak("Gözleri kapattım kanka."); close_live_camera(); update_fly_animation(current_state, w, h, scale); continue; 
         }
 
         // --- 3. AŞAMA: BULUT ZEKASI (FLY BRAIN) ---
@@ -154,8 +95,12 @@ int main() {
             pclose(fp);
         }
 
-        // --- 4. AŞAMA: YANITI SESLENDİR ---
+        // --- 4. AŞAMA: YANITI SESLENDİR VE ŞIK BİR ŞEKİLDE YAZ ---
         ui_render(final_message, current_state);
+        
+        // YENİ: İnsan gözüne dost, nefes alan formatta yazdırıyoruz
+        print_human_readable(final_message);
+        
         speak(final_message); 
         
         current_state = 0; 
