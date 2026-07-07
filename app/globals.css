@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-obsidian: var(--obsidian);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-electric-blue: var(--electric-blue);
+  --color-tactical: var(--tactical);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-border-soft: var(--border-soft);
+}
+
+/* Night Mode — Obsidian Dark (default) */
+:root {
+  --background: #0b0c10;
+  --foreground: #c5c6c7;
+  --obsidian: #0b0c10;
+  --neon-cyan: #45a29e;
+  --electric-blue: #66fcf1;
+  --tactical: #ff6b1a;
+  --muted: #4a4e54;
+  --panel: #12141a;
+  --border-soft: #1f2833;
+}
+
+/* Day Mode — Laboratory Light */
+.theme-day {
+  --background: #f4f6f9;
+  --foreground: #1a1c20;
+  --obsidian: #f4f6f9;
+  --neon-cyan: #0b7a75;
+  --electric-blue: #036c68;
+  --tactical: #e2560e;
+  --muted: #8a9099;
+  --panel: #ffffff;
+  --border-soft: #d5dae1;
+}
+
+* {
+  border-color: var(--border-soft);
+}
+
+body {
+  background: #05060a;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* CRT-ish scanline overlay used on the device screen */
+.scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 40;
+  mix-blend-mode: overlay;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.7; }
+  94% { opacity: 1; }
+  97% { opacity: 0.85; }
+}
+
+.animate-flicker {
+  animation: flicker 6s infinite;
+}
+
+@keyframes fragment-out {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% {
+    transform: translate(var(--fx), var(--fy)) scale(0.2) rotate(var(--fr));
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes rise-fade {
+  0% { transform: translateY(6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-rise {
+  animation: rise-fade 0.35s ease-out both;
+}
+
+@keyframes blink-caret {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.caret::after {
+  content: "▊";
+  margin-left: 2px;
+  animation: blink-caret 1s step-end infinite;
+  color: var(--electric-blue);
+}
