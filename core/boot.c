@@ -15,7 +15,8 @@
 #include "audio_engine.c" 
 #include "camera_engine.c"  
 #include "gallery_engine.c" 
-#include "idle_engine.c"    // YENİ: Boşta Bekleme Ekranı Motoru
+#include "idle_engine.c"    
+#include "checkup.c"        // YENİ: Donanım Dedektifi
 
 // --- ANA DİZİN MODÜLLERİ ---
 #include "../touch_engine.c"
@@ -26,13 +27,14 @@ int main() {
     freopen("debug.log", "w", stdout);
     freopen("debug.log", "w", stderr);
 
-    // Rastgelelik motorunu başlatıyoruz (Zaman damgası ile)
     srand(time(NULL));
 
-    // --- İLK KURULUM KONTROLÜ (MASTER SETUP) ---
+    // --- 1. İLK KURULUM VE CHECK-UP ---
     system("python3 agents/setup_engine.py");
-
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
+
+    // Donanım dedektifini ilk açılışta çalıştır
+    run_initial_checkup();
 
     int fb_fd = open("/dev/fb0", O_RDWR);
     if (fb_fd < 0) return 1;
@@ -43,11 +45,6 @@ int main() {
     int w = vinfo.xres;
     int h = vinfo.yres;
     float scale = (float)w / 1080.0f;
-
-    int btn_w = (int)(150 * scale); 
-    int btn_h = (int)(150 * scale); 
-    int btn_x = w - btn_w - (int)(50 * scale); 
-    int btn_y = h - btn_h - (int)(50 * scale); 
 
     int current_state = 0; 
     update_fly_animation(current_state, w, h, scale);
@@ -61,7 +58,6 @@ int main() {
         if (check_wake_word("/tmp/anka_voice.wav")) {
             speak("Efendim, seni dinliyorum."); 
         } else {
-            // UYANDIRMA YOKSA: Arka planda o havalı hayalet şovları tetikle!
             run_idle_orchestrator(w, h);
             continue; 
         }
