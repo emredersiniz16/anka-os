@@ -16,7 +16,9 @@
 #include "camera_engine.c"  
 #include "gallery_engine.c" 
 #include "idle_engine.c"    
-#include "checkup.c"        // YENİ: Donanım Dedektifi
+#include "checkup.c"        
+#include "input_engine.c"    // YENİ: Dinamik Tuş Dedektifi
+#include "ota_engine.c"      // YENİ: Evrim Motoru
 
 // --- ANA DİZİN MODÜLLERİ ---
 #include "../touch_engine.c"
@@ -33,8 +35,14 @@ int main() {
     system("python3 agents/setup_engine.py");
     printf("🔊 [ANKA OS BOOTING... 💥]\n");
 
-    // Donanım dedektifini ilk açılışta çalıştır
+    // Donanım dedektifini çalıştır
     run_initial_checkup();
+    
+    // YENİ: Donanım yeteneklerini (tuş/dokunmatik) tanı
+    scan_hardware_inputs();
+    
+    // YENİ: Bulutta güncelleme var mı bak ve donanıma göre onayı iste
+    check_for_evolution();
 
     int fb_fd = open("/dev/fb0", O_RDWR);
     if (fb_fd < 0) return 1;
