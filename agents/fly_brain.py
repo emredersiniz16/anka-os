@@ -8,6 +8,17 @@ FLY_SIGNATURE = "\n\n[FLY_SIGNATURE_ICON]"
 
 # ... (get_state, set_state, get_api_key, save_api_key, check_internet, scan_wifi fonksiyonları aynı kalıyor) ...
 
+# --- WHATSAPP KÖPRÜSÜ (FLY-BRIDGE) ---
+def whatsapp_bridge(kullanici_mesaji):
+    # Mesajı işle ve altına sadece sinek ikonunu imza olarak ekle
+    # İleride burayı doğrudan bulut zekasına veya özel bir ajana da bağlayabilirsin kanka
+    cevap = f"{kullanici_mesaji} için Sinek analizini yaptı."
+    
+    # Sadece o minimalist sinek ikonu
+    imza = " 🪰"
+    
+    return cevap + imza
+
 # --- SIFIR DEPOLAMA (ZERO-STORAGE) BULUT KÖPRÜSÜ ---
 def buluttan_cek_ve_calistir(ajan_url, kullanici_mesaji, api_anahtari):
     try:
@@ -24,8 +35,6 @@ def buluttan_cek_ve_calistir(ajan_url, kullanici_mesaji, api_anahtari):
         exec(ajan_kodu, calisma_alani)
         
         # --- DÜZELTME: İmzayı SADECE bulut cevabı dönerken ekliyoruz ---
-        # Ajan kodu kendi çıktısını print ile basıyor, 
-        # buraya bir "imza_bas()" fonksiyonu veya etiketi ekliyoruz:
         print(FLY_SIGNATURE) 
         
         return True
@@ -36,6 +45,12 @@ def process_intent(user_input):
     state = get_state()
     api_key = get_api_key()
     text = user_input.lower()
+
+    # --- 0. WHATSAPP GİRİŞ KONTROLÜ ---
+    # Eğer mesaj WhatsApp'tan geliyorsa direkt köprüye aktar ve sadece ikon bas
+    if text.startswith("whatsapp_mesaji:"):
+        mesaj = user_input[len("whatsapp_mesaji:"):].strip()
+        return whatsapp_bridge(mesaj)
 
     # --- 1. YEREL KOMUTLAR (İMZA YOK) ---
     if not check_internet():
@@ -53,4 +68,4 @@ def process_intent(user_input):
     if basarili:
         sys.exit(0)
     else:
-        return "Bulut zekasına ulaşılamadı. Sunucu hatası kanka." 
+        return "Bulut zekasına ulaşılamadı. Sunucu hatası kanka."
