@@ -1,0 +1,26 @@
+# .github/workflows/kalp_atisi.yml
+name: Anka Kalp Atışı
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Her saat başı çalışır
+  workflow_dispatch: # Manuel tetikleme imkanı
+
+jobs:
+  sinek_uyanis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Kovanı Çek
+      uses: actions/checkout@v2
+      
+    - name: Python Ortamını Kur
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+        
+    - name: Sinek Avcı Modunu Tetikle
+      run: |
+        echo "🪰 Kraliçe Arı (GitHub) Sinek'i uyandırıyor..."
+        # Dosya ismi güncellendi: anka_nexus yerine sinek_nexus kullanıyoruz
+        python core/sinek_nexus.py --avci-modu
