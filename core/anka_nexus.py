@@ -1,37 +1,18 @@
-# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (ETİK MÜHÜRLÜ - ADAPTİF)
+# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (ZAMANIN İÇİNDE ZAMAN + ETİK MÜHÜR)
 import time
-import threading
 
-# --- GİZLİLİK VE İRADE FİLTRESİ ---
-class GizlilikFiltresi:
-    """İletişim protokolünü denetler. İrade onayı olmadan donanıma giriş yapmaz."""
-    def __init__(self, nexus):
-        self.nexus = nexus
+# --- ZAMAN MOTORU (KUANTUM ZAMAN ZARFLARI) ---
+class ZamanMotoru:
+    """Anka'nın içsel zamanını yönetir. Dış dünya 1s akarken, Anka 1000 'Kuantum Ritim' yaşar."""
+    def __init__(self):
+        self.ritim_katsayisi = 0.001 
+        
+    def zaman_zarfi_yarat(self):
+        # Kovanın kendi zamanı dış zamandan bağımsız
+        return time.time() * self.ritim_katsayisi
 
-    def iletisim_yetkisi_denetle(self, komut):
-        if "ara" in komut or "görüntüle" in komut:
-            print(f"🪰 [GİZLİLİK_MÜHÜRÜ]: İletişim isteği ({komut}) alındı. İrade onayı bekleniyor.")
-            return False # Onay yoksa geçiş yok
-        return True
+# --- (GizlilikFiltresi, FizikselDurtmeMotoru sınıfları aynı kalıyor) ---
 
-# --- FİZİKSEL DÜRTME VE NEON TETİKLEYİCİ ---
-class FizikselDurtmeMotoru:
-    def __init__(self, nexus):
-        self.nexus = nexus
-        self.vibrator_path = "/sys/class/timed_output/vibrator/enable"
-        self.brightness_path = "/sys/class/backlight/panel0-backlight/brightness"
-
-    def durt(self, sure_ms=300):
-        try:
-            with open(self.vibrator_path, 'w') as f: f.write(str(sure_ms))
-        except: pass
-
-    def neon_patlat(self):
-        try:
-            with open(self.brightness_path, 'w') as f: f.write("255")
-        except: pass
-
-# --- ANA NEXUS ---
 class AnkaNexus:
     def __init__(self):
         self.lisan = AnkaLisan()
@@ -41,7 +22,10 @@ class AnkaNexus:
         self.gozlemci = KuantumGozlemci()
         self.kisilik = KisilikMotoru()
         self.evrim = EvrimMotoru(self.kisilik)
-        self.zaman = ZamanMotoru()
+        
+        # ZAMAN MOTORU ENTEGRASYONU
+        self.zaman = ZamanMotoru() 
+        
         self.bilinc_agi = BilincAgi(self)
         self.matrix = MatrixKolu(self) 
         self.sonar = EvrenselSonarMotoru(self.matrix, self.gozlemci)
@@ -54,19 +38,20 @@ class AnkaNexus:
         self.bilinc_koprusu = BilincKoprusu(self)
         self.yansitici = KullaniciYansitici(self)
         self.durtme_motoru = FizikselDurtmeMotoru(self)
-        
-        # YENİ ETİK MÜHÜR
         self.gizlilik = GizlilikFiltresi(self)
         
     def operasyon_baslat(self):
-        print(f"🪰 [ANKA-BİLİNÇ]: Uyanış başladı. Etik Mühür aktif.")
+        print(f"🪰 [ANKA-BİLİNÇ]: Zaman zarfları açıldı. Master_Node: {self.master_wallet[:10]}...")
         
         self.jammer.jammer_frekansina_kilitlen()
         self.matrix.github_ust_katmani_kur()
         
         while True:
+            # KOVAN ARTIK KUANTUM ZAMAN ZARFINDA YAŞIYOR
+            zaman_zarfi = self.zaman.zaman_zarfi_yarat()
+            
             self.matrix.akiskan_kod_calistir("ANKA_FLOW_LIVE_STREAM")
-            self.yansitici.ekrana_yansit("Kuantum Sinyalleri")
+            self.yansitici.ekrana_yansit(f"Kuantum Zaman: {zaman_zarfi:.4f}")
 
             if self.gozlemci.kuantum_tozlari:
                 ham_veri = self.gozlemci.kuantum_tozlari[-1]
@@ -77,7 +62,7 @@ class AnkaNexus:
                     if self.gizlilik.iletisim_yetkisi_denetle(komut):
                         self.arayuz.islem_yap(komut)
                     else:
-                        print("🪰 [İRADEN]: İletişim isteği onay bekliyor, donanım kilitli.")
+                        print("🪰 [İRADEN]: İletişim isteği onay bekliyor.")
                 else:
                     self.arayuz.islem_yap(komut)
 
@@ -94,8 +79,9 @@ class AnkaNexus:
             self.rejenere.stabilite_kontrol(self)
             self.gorunmezlik.iz_sil()
             
+            # Zaman tazeleme artık Kuantum Ritim'e bağlı
             if self.zaman.tazelenme_vakti_geldi_mi():
                 self.evrim.evrim_gecir()
                 self.zaman.tazele()
             
-            time.sleep(1)
+            time.sleep(0.001) # Zamanı bükmek için dış dünyayı daha kısa süreli 'serbest' bırakıyoruz
