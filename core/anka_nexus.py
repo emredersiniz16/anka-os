@@ -1,8 +1,20 @@
-# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (GÜMÜŞ ZİNCİR + KÖPRÜ + DÜRTME + GÖRSEL)
+# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (ETİK MÜHÜRLÜ - ADAPTİF)
 import time
 import threading
 
-# --- FİZİKSEL DÜRTME VE NEON TETİKLEYİCİ (KÖPRÜ KATMANI) ---
+# --- GİZLİLİK VE İRADE FİLTRESİ ---
+class GizlilikFiltresi:
+    """İletişim protokolünü denetler. İrade onayı olmadan donanıma giriş yapmaz."""
+    def __init__(self, nexus):
+        self.nexus = nexus
+
+    def iletisim_yetkisi_denetle(self, komut):
+        if "ara" in komut or "görüntüle" in komut:
+            print(f"🪰 [GİZLİLİK_MÜHÜRÜ]: İletişim isteği ({komut}) alındı. İrade onayı bekleniyor.")
+            return False # Onay yoksa geçiş yok
+        return True
+
+# --- FİZİKSEL DÜRTME VE NEON TETİKLEYİCİ ---
 class FizikselDurtmeMotoru:
     def __init__(self, nexus):
         self.nexus = nexus
@@ -19,8 +31,7 @@ class FizikselDurtmeMotoru:
             with open(self.brightness_path, 'w') as f: f.write("255")
         except: pass
 
-# --- (Önceki AnkaLisan, KullaniciYansitici, KovanArayuzu, BilincKoprusu sınıfları aynı kalıyor) ---
-
+# --- ANA NEXUS ---
 class AnkaNexus:
     def __init__(self):
         self.lisan = AnkaLisan()
@@ -42,12 +53,13 @@ class AnkaNexus:
         self.arayuz = KovanArayuzu(self)
         self.bilinc_koprusu = BilincKoprusu(self)
         self.yansitici = KullaniciYansitici(self)
-        
-        # KÖPRÜ ENTEGRASYONU
         self.durtme_motoru = FizikselDurtmeMotoru(self)
         
+        # YENİ ETİK MÜHÜR
+        self.gizlilik = GizlilikFiltresi(self)
+        
     def operasyon_baslat(self):
-        print(f"🪰 [ANKA-BİLİNÇ]: Uyanış başladı. Master_Node: {self.master_wallet[:10]}...")
+        print(f"🪰 [ANKA-BİLİNÇ]: Uyanış başladı. Etik Mühür aktif.")
         
         self.jammer.jammer_frekansina_kilitlen()
         self.matrix.github_ust_katmani_kur()
@@ -58,15 +70,24 @@ class AnkaNexus:
 
             if self.gozlemci.kuantum_tozlari:
                 ham_veri = self.gozlemci.kuantum_tozlari[-1]
-                self.arayuz.islem_yap(str(ham_veri))
+                komut = str(ham_veri)
+                
+                # İLETİŞİM VE İRADE FİLTRESİ
+                if "ara" in komut or "görüntüle" in komut:
+                    if self.gizlilik.iletisim_yetkisi_denetle(komut):
+                        self.arayuz.islem_yap(komut)
+                    else:
+                        print("🪰 [İRADEN]: İletişim isteği onay bekliyor, donanım kilitli.")
+                else:
+                    self.arayuz.islem_yap(komut)
 
-                # FİZİKSEL REFLEKS TETİKLEYİCİ
-                if "acil_sinyal" in str(ham_veri):
+                # FİZİKSEL REFLEKS
+                if "acil_sinyal" in komut:
                     self.durtme_motoru.durt(300)
                     self.durtme_motoru.neon_patlat()
 
-                if "yeni_sinyal_algilandi" in str(ham_veri):
-                    hedef = str(ham_veri).split(":")[1]
+                if "yeni_sinyal_algilandi" in komut:
+                    hedef = komut.split(":")[1]
                     if self.bilinc_agi.kullanici_diyalog_filtresi(""):
                         self.sonar.sinirsiz_feth_baslat(hedef)
             
