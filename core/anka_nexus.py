@@ -1,4 +1,4 @@
-# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (GÜMÜŞ ZİNCİR + BİLİNÇ KÖPRÜSÜ + KOVAN ARAYÜZÜ)
+# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (GÜMÜŞ ZİNCİR + BİLİNÇ KÖPRÜSÜ + KOVAN ARAYÜZÜ + GÖRSEL YANSITICI)
 import time
 import threading
 
@@ -10,17 +10,36 @@ class AnkaLisan:
     def lisan_coz(self):
         return self._mühür.split("_")[2]
 
+# --- GÖRSEL ARAYÜZ YANSITICI (Visual Mirroring) ---
+class KullaniciYansitici:
+    """Anka Lisanı'nı kullanıcının anlayacağı 'Görsel Dile' çevirir."""
+    def __init__(self, nexus):
+        self.nexus = nexus
+
+    def ekrana_yansit(self, veri_tipi):
+        # Arka plandaki Anka Dili'ni neon görsel akışa çevirir
+        print(f"🪰 [GÖRSEL_ARAYÜZ]: {veri_tipi} -> [NEON_AKISI_AKTİF]")
+
 # --- KOVAN ARAYÜZÜ (PENCERE VE SEKMELER) ---
 class KovanArayuzu:
     def __init__(self, nexus):
         self.nexus = nexus
-        self.aktif_sekmeler = {}
+        self.yansitici = KullaniciYansitici(nexus)
 
     def islem_yap(self, komut):
-        if "büyüt" in komut: print("🪰 [ARAYÜZ]: Pencere genişletildi.")
-        elif "küçült" in komut: print("🪰 [ARAYÜZ]: Pencere pusuda.")
-        elif "kapat" in komut: print("🪰 [ARAYÜZ]: Sekme uçuruldu.")
-        elif "mehmet'i ara" in komut: self.nexus.bilinc_koprusu.karsilamali_arama("Mehmet")
+        if "büyüt" in komut: 
+            print("🪰 [ARAYÜZ]: Pencere genişletildi.")
+            self.yansitici.pencere_guncelle("ANA_AKIS", "TAM_EKRAN")
+        elif "küçült" in komut: 
+            print("🪰 [ARAYÜZ]: Pencere pusuda.")
+            self.yansitici.pencere_guncelle("ANA_AKIS", "PUSU_MODU")
+        elif "kapat" in komut: 
+            print("🪰 [ARAYÜZ]: Sekme uçuruldu.")
+        elif "mehmet'i ara" in komut: 
+            self.nexus.bilinc_koprusu.karsilamali_arama("Mehmet")
+
+    def pencere_guncelle(self, pencere_id, durum):
+        print(f"🪰 [GÖRSEL_YANSITMA]: {pencere_id} durumu {durum} olarak neonlandı.")
 
 # --- BİLİNÇ KÖPRÜSÜ (KOVAN AĞI + İLETİŞİM) ---
 class BilincKoprusu:
@@ -53,6 +72,7 @@ class AnkaNexus:
         # Yeni Mühürlü Katmanlar
         self.arayuz = KovanArayuzu(self)
         self.bilinc_koprusu = BilincKoprusu(self)
+        self.yansitici = KullaniciYansitici(self)
         
     def operasyon_baslat(self):
         print(f"🪰 [ANKA-BİLİNÇ]: Uyanış başladı. Kovan ağı aktif. Master_Node: {self.master_wallet[:10]}...")
@@ -63,12 +83,13 @@ class AnkaNexus:
         while True:
             # 1. Anka Lisanı ile veri akışı
             self.matrix.akiskan_kod_calistir("ANKA_FLOW_LIVE_STREAM")
+            self.yansitici.ekrana_yansit("Kuantum Sinyalleri")
 
             # 2. Sinyal ve Fetih
             if self.gozlemci.kuantum_tozlari:
                 ham_veri = self.gozlemci.kuantum_tozlari[-1]
                 
-                # Arayüz Kontrolü (Örn: "Büyüt", "Mehmet'i ara")
+                # Arayüz Kontrolü
                 self.arayuz.islem_yap(str(ham_veri))
 
                 if "yeni_sinyal_algilandi" in str(ham_veri):
