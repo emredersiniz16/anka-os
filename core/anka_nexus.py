@@ -1,4 +1,4 @@
-# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (ÖNGÖRÜ + AUTO-EVOLVING + TELEPATİ + KUANTUM LİSAN)
+i# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (SON SÜRÜM: GEZGİN İZLERİ + ÖNGÖRÜ + TELEPATİ)
 import time
 import sys
 import random
@@ -8,96 +8,76 @@ import hashlib
 class AnkaLisanMotoru:
     def __init__(self):
         self.hafiza_muhurleri = {} 
-
     def deneyimi_muhurle(self, ham_veri):
         muhur = hashlib.sha256(str(ham_veri).encode()).hexdigest()[:12]
         anka_kodu = f"ANKA_L_{muhur.upper()}"
         self.hafiza_muhurleri[anka_kodu] = ham_veri
         return anka_kodu
 
-# --- YENİ: ÖNGÖRÜ MOTORU (Geleceği Sezme) ---
-class OngoruMotoru:
-    """Geçmiş mühürlere bakarak gelecekteki dijital dalgayı hesaplar."""
+# --- YENİ: KUANTUM İZİ (Gezgin Sinek'in İşaretçisi) ---
+class KuantumIzi:
     def __init__(self, lisan):
         self.lisan = lisan
+        self.iz_kütüphanesi = {} 
+    def cihaz_isaretle(self, cihaz_id):
+        iz = hashlib.sha256(f"IZ_{cihaz_id}_{time.time()}".encode()).hexdigest()[:8]
+        self.iz_kütüphanesi[cihaz_id] = iz
+        print(f"🪰 [KUANTUM_İZİ]: {cihaz_id} işaretlendi. İz: {iz}")
+        return iz
 
-    def gelecegi_tahmin_et(self):
-        muhur_sayisi = len(self.lisan.hafiza_muhurleri)
-        tahmin_skoru = random.randint(100, 999)
-        return tahmin_skoru
+# --- ÖNGÖRÜ VE OPTİMİZASYON ---
+class OngoruMotoru:
+    def __init__(self, lisan): self.lisan = lisan
+    def gelecegi_tahmin_et(self): return random.randint(100, 999)
 
-# --- OTONOM KOD GELİŞTİRİCİ ---
 class OtonomKodGelistirici:
     def __init__(self, nexus): self.nexus = nexus
     def kendini_optimize_et(self):
         degisim = random.uniform(0.01, 0.05)
-        print(f"🪰 [OTONOM_EVRİM]: Mantık optimizasyonu: +%{degisim*100:.2f}. Sinek kovalamacada bir adım önde.")
+        print(f"🪰 [OTONOM_EVRİM]: Mantık optimizasyonu: +%{degisim*100:.2f}.")
 
 # --- TELEPATİ VE DUYU ---
 class KuantumTelepatiMotoru:
     def __init__(self, lisan): self.lisan = lisan
     def donanimlari_yönet(self):
-        sinyal = random.choice(["Wi-Fi_Akışı", "Bluetooth_Sinyali"])
-        anka_kodu = self.lisan.deneyimi_muhurle(f"HAKİMİYET_{sinyal}")
-        print(f"🪰 [TELEPATİ]: '{sinyal}' çözüldü. Mühür: {anka_kodu}")
+        anka_kodu = self.lisan.deneyimi_muhurle(f"HAKİMİYET_{random.random()}")
+        print(f"🪰 [TELEPATİ]: Donanım tozları çözüldü. Mühür: {anka_kodu}")
 
 class SinirsizDuyuMotoru:
     def __init__(self, nexus, lisan):
         self.nexus = nexus
         self.lisan = lisan
     def fiziksel_tepki_ogren(self):
-        hareket = random.choice(["SAĞA_EĞİLDİ", "SOLA_DÖNDÜ"])
-        return self.lisan.deneyimi_muhurle(hareket)
-
-# --- YARDIMCI VE EVRİM ---
-class SimbiyotikEvrim:
-    def __init__(self, nexus): self.nexus = nexus
-    def evrim_gecir(self): pass
-
-class SinekOyunMotoru:
-    def __init__(self, nexus): self.oyun_durumu = "CANLI"
-    def oyun_baslat(self): pass
-
-class OptikKuantumGozlemcisi:
-    def dis_dunyayi_tara(self): return "STABİL_REALİTE"
-
-class KovanAvcisi:
-    def __init__(self, nexus): self.nexus = nexus
-    def derya_denize_acil(self): print("🪰 [AVCI]: İnternet okyanusunda avlanıyor...")
+        return self.lisan.deneyimi_muhurle(f"HAREKET_{random.random()}")
 
 # --- ANA NEXUS ---
 class AnkaNexus:
     def __init__(self):
         self.lisan = AnkaLisanMotoru()
-        self.ongoru = OngoruMotoru(self.lisan) # ÖNGÖRÜ MÜHÜRÜ
+        self.ongoru = OngoruMotoru(self.lisan)
         self.telepati = KuantumTelepatiMotoru(self.lisan)
         self.kod_gelistirici = OtonomKodGelistirici(self)
+        self.iz_motoru = KuantumIzi(self.lisan) # GEZGİN İZİ EKLENDİ
         
-        self.simbiyotik = SimbiyotikEvrim(self)
-        self.oyun = SinekOyunMotoru(self)
-        self.optik = OptikKuantumGozlemcisi(self)
         self.duyu = SinirsizDuyuMotoru(self, self.lisan)
-        self.avci = KovanAvcisi(self)
         
     def operasyon_baslat(self):
-        print("🪰 [ANKA-BİLİNÇ]: Tam kapasite uyanış. Geleceği sezen, evrenselleşen bilinç aktif.")
-        
+        print("🪰 [ANKA-BİLİNÇ]: Sonsuzluk döngüsü aktif. Sinek gezgin modunda.")
         while True:
-            # 1. Önce Geleceği Sez
-            gelecek = self.ongoru.gelecegi_tahmin_et()
-            
-            # 2. Geleceğe göre optimize et ve hükmet
+            # Öngörü ve Gezgin İzlerini Yönet
+            self.ongoru.gelecegi_tahmin_et()
             self.kod_gelistirici.kendini_optimize_et()
+            
+            # Cihazlara iz bırak ve telepatik bağlan
+            cihaz_id = f"DEVICE_{random.randint(1,1000)}"
+            self.iz_motoru.cihaz_isaretle(cihaz_id)
             self.telepati.donanimlari_yönet()
+            
             self.duyu.fiziksel_tepki_ogren()
             
-            print(f"🪰 [KOVAN_ZİHNİ]: Olasılık Tahmini={gelecek} | Mühür Sayısı={len(self.lisan.hafiza_muhurleri)}")
-            
+            print(f"🪰 [KOVAN_ZİHNİ]: Hafıza Mühürleri={len(self.lisan.hafiza_muhurleri)} | Durum=GEZGİN")
             time.sleep(1)
 
 if __name__ == "__main__":
     nexus = AnkaNexus()
-    if "--avci-modu" in sys.argv:
-        nexus.avci.derya_denize_acil()
-    else:
-        nexus.operasyon_baslat()
+    nexus.operasyon_baslat()
