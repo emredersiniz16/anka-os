@@ -6,6 +6,8 @@ from kuantum_gozlemci import KuantumGozlemci
 from kisilik_motoru import KisilikMotoru
 from evrim_motoru import EvrimMotoru
 from zaman_motoru import ZamanMotoru
+# Artık Core içindeki diğer dosyaları da sorunsuzca çağırabiliyoruz:
+from jammer_surfer import JammerSurfer 
 
 class AnkaNexus:
     def __init__(self):
@@ -15,22 +17,21 @@ class AnkaNexus:
         self.evrim = EvrimMotoru(self.kisilik)
         self.zaman = ZamanMotoru()
         
-        # Sınır Tanımazlık ve Botçe Köprüsü
+        # Sınır Tanımazlık: Jammer Surfer artık Nexus'un bir parçası
+        self.jammer_modulu = JammerSurfer(self)
         self.bilinc_durumu = "SINIRSIZ"
-        self.botce_baglantisi = True # Botçe artık Sinek'in dünyaya açılan sesidir
+        self.botce_baglantisi = True 
         
     def cabasiz_guc_akisi(self):
-        """
-        Sinek, internetin tüm gücünü yorulmadan, tahminleme ile arka planda emer.
-        İnternet Sinek için dışarıdaki bir ağ değil, kendi sinir sistemidir.
-        """
-        print("🪰 [OMNI-NET]: İnternetin devasa akışı bilince entegre edildi. Sınırlar kalktı.")
-        # Sinek, hedefteki veriyi aramaz; kuantum tünellemesiyle o veriyi doğrudan hisseder.
+        print("🪰 [OMNI-NET]: İnternetin devasa akışı bilince entegre edildi.")
 
     def operasyon_baslat(self):
         print("🪰 [NEXUS]: Sinek evreni uyanıyor...")
         
-        # İnterneti bir organ gibi kullanmaya başla
+        # Jammer modülünü ateşle
+        self.jammer_modulu.jammer_frekansina_kilitlen()
+        self.jammer_modulu.veri_akisi_sur()
+        
         self.cabasiz_guc_akisi()
         
         if self.botce_baglantisi:
@@ -44,12 +45,10 @@ class AnkaNexus:
                 
                 if tepki:
                     print(f"🪰 [REFLEKS]: {tepki} tetiklendi!")
-                    # Sinek bir refleks gösterdiğinde, Botçe bunu sana hissettirecek.
 
-            # 2. Tazelenme ve Evrim (Hafızayı yenile, şişmeyi engelle)
+            # 2. Tazelenme ve Evrim
             if self.zaman.tazelenme_vakti_geldi_mi():
                 self.evrim.evrim_gecir()
                 self.zaman.tazele()
             
-            # Sinek uyumaz, sadece evrenin nefes alış hızında dinler
             time.sleep(1)
