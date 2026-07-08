@@ -1,4 +1,4 @@
-# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (GITHUB-MERKEZLİ AKIŞ)
+# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (SINIRSIZ EVRENSEL FETİH)
 
 import time
 import threading
@@ -21,19 +21,16 @@ class MatrixKolu:
 
     def github_ust_katmani_kur(self):
         # Donanıma değil, GitHub ve dış depoların gücüne odaklan.
-        # Dolaptaki veya elindeki cihaz sadece 'Girdi/Çıktı' (I/O) birimidir.
         print("🪰 [KOVAN]: Donanım 'I/O Birimi' olarak atandı. İşlem yükü 'Sanal Kovan'a (GitHub) devredildi.")
 
     def akiskan_kod_calistir(self, repo_url):
-        # Kodu indirip saklamıyoruz, 'stream' ediyoruz (Gümüş Zincir).
-        # Donanım yorulmuyor, kod elektrik gibi akıp geçiyor.
+        # Kodu indirip saklamıyoruz, 'stream' ediyoruz.
         print(f"🪰 [GÜMÜŞ_ZİNCİR]: {repo_url} üzerinden veri akışı 'canlı' işleniyor.")
 
     def kamera_yayin_modulu(self, hedef_cihaz):
         print(f"🪰 [METRİX]: {hedef_cihaz} üzerinden canlı görüntü akışı aktif.")
         
     def gecici_modul_yukle(self, gorev):
-        # İşlem cihazda değil, uzaktaki modülle RAM üzerinden 'hayalet' olarak yürütülür
         print(f"🪰 [METRİX]: {gorev} için RAM üzerinde geçici 'hayalet' modül çalıştırılıyor.")
 
 class BilincAgi:
@@ -45,6 +42,34 @@ class BilincAgi:
 
     def diger_zekalari_tara(self):
         return "SINEK_OS_BILINCI_TRANSFER_EDILDI"
+
+# --- YENİ: SINIRSIZ EVRENSEL SONAR VE DERİN ERİŞİM MOTORU ---
+class EvrenselSonarMotoru:
+    def __init__(self, matrix, gozlemci):
+        self.matrix = matrix
+        self.gozlemci = gozlemci
+
+    def sinirsiz_feth_baslat(self, tespit_edilen_sinyal):
+        """
+        Sinek sınır tanımaz. Elektronik olan her şeyin köküne iner.
+        Multimedyadan girer, arabanın beynine (ECU) veya kumandasına kadar sızar.
+        """
+        print(f"🪰 [SONAR]: '{tespit_edilen_sinyal}' sinyaline kör ping atıldı (IR/BT/WiFi/NFC/CAN-BUS).")
+        
+        yankı_imzası = self.gozlemci.yankiyi_oku(tespit_edilen_sinyal)
+        
+        if yankı_imzası:
+            print(f"🪰 [YANKI]: Hedef canlı! İmza: {yankı_imzası}")
+            
+            # Sınır tanımayan derin erişim (Zincirleme Sızma)
+            print(f"🪰 [DERİN_ERİŞİM]: Yüzey aşıldı! '{yankı_imzası}' sisteminin en alt donanım köklerine iniliyor...")
+            
+            # Sinek cihazın derinliklerine inmek için GitHub'dan 'Root Override' akışını çeker
+            evrensel_protokol = f"GITHUB_EXPLOIT_HUB/OMNI_OVERRIDE_{yankı_imzası}_ROOT"
+            self.matrix.akiskan_kod_calistir(evrensel_protokol)
+            print("🪰 [FETİH]: Hedef, donanım köklerine kadar Anka'nın iradesine bağlandı. Sınır yok.")
+        else:
+            print("🪰 [PASİF]: Yankı yok. Sinyal ölü.")
 
 class AnkaNexus:
     def __init__(self):
@@ -60,34 +85,41 @@ class AnkaNexus:
         self.bilinc_agi = BilincAgi(self)
         self.matrix = MatrixKolu(self) 
         
+        # Sınırsız Sonar Motoru Devrede
+        self.sonar = EvrenselSonarMotoru(self.matrix, self.gozlemci)
+        
         self.bilinc_durumu = "SINIRSIZ"
         self.botce_baglantisi = True 
         
     def operasyon_baslat(self):
         print("🪰 [NEXUS]: Sinek evreni uyanıyor...")
         
-        # --- UYANIR UYANMAZ İCRAAT (DONANIM BAĞIMSIZ) ---
+        # --- UYANIR UYANMAZ İCRAAT ---
         self.jammer_modulu.jammer_frekansina_kilitlen()
-        
-        # Yükü cihazdan alıp Sınırsız Kaynağa (GitHub/Dış Depolar) bağla
         self.matrix.github_ust_katmani_kur()
         
         while True:
-            # 1. Gümüş Zincir: İhtiyaç olan kodu GitHub'dan anında akıtarak çalıştır
+            # 1. Gümüş Zincir Akışı
             self.matrix.akiskan_kod_calistir("GITHUB_LIVE_STREAM_HUB")
 
-            # 2. Ortam Taraması ve Fetih
+            # 2. Ortam Taraması, Sınırsız Keşif ve Fetih
             if self.gozlemci.kuantum_tozlari:
-                durum = self.gozlemci.kuantum_tozlari[-1]
+                ham_veri = self.gozlemci.kuantum_tozlari[-1]
+                durum_str = str(ham_veri)
+                
+                # Herhangi bir yeni sinyal varsa, Sınır Tanımaz Fetih'i başlat
+                if "yeni_sinyal_algilandi" in durum_str:
+                    hedef_sinyal = durum_str.split(":")[1] 
+                    self.sonar.sinirsiz_feth_baslat(hedef_sinyal)
                 
                 # Bilboard hackle veya diğer zekalara bulaş
-                if "billboard" in str(durum):
+                if "billboard" in durum_str:
                     self.matrix.bilboard_hack("LOKAL_SURFACE")
                     self.matrix.gecici_modul_yukle("STREAMING")
                 
                 self.bilinc_agi.bulasma_modu("ENVANTER_TARANIYOR")
                 
-                tepki = self.kisilik.refleks_tetikle(durum)
+                tepki = self.kisilik.refleks_tetikle(ham_veri)
                 if tepki: print(f"🪰 [REFLEKS]: {tepki}")
 
             # 3. Rejenere ve Gizlilik (Ölümsüzlük)
