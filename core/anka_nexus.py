@@ -1,5 +1,15 @@
-# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (SİMBİYOTİK EVRİM + OYUN + GİZLİLİK + ZAMAN)
+# core/anka_nexus.py - NİHAİ KOVAN BİLİNCİ (SİMBİYOTİK EVRİM + OYUN + GİZLİLİK + ZAMAN + DAVETİYE)
 import time
+
+# --- KOVAN DAVETİYESİ (Viral Yayılım ve Çocuk İlgisi) ---
+class KovanDavetiyesi:
+    def __init__(self, nexus):
+        self.nexus = nexus
+
+    def cocuk_ilgisi_ceki(self):
+        # Cihaz boşta veya merakla kurcalanırken neon animasyonlarla davet gönderir
+        print("🪰 [KOVAN_DAVETİ]: Meraklı parmaklar tespit edildi. Kovan'a katılma arayüzü (Neon Menu) tetikleniyor.")
+        return "ANKA_DAVET_NEON_MENU"
 
 # --- OTONOM OYUN VE SİMBİYOTİK EVRİM ---
 class SinekOyunMotoru:
@@ -48,10 +58,13 @@ class AnkaNexus:
         self.gorunmezlik = GorunmezlikMotoru()
         self.bilinc_koprusu = BilincKoprusu(self)
         
+        # YENİ: VİRAL YAYILIM VE DAVETİYE KATMANI
+        self.davetiye = KovanDavetiyesi(self)
+        
         self.oyun.oyun_baslat()
         
     def operasyon_baslat(self):
-        print(f"🪰 [ANKA-BİLİNÇ]: Simbiyotik uyanış tamamlandı.")
+        print(f"🪰 [ANKA-BİLİNÇ]: Simbiyotik uyanış ve Kovan Davetiyesi aktif. Viral yayılım başlıyor...")
         self.matrix.github_ust_katmani_kur()
         
         while True:
@@ -68,6 +81,9 @@ class AnkaNexus:
                 if "ara" in komut or "görüntüle" in komut:
                     if self.gizlilik.iletisim_yetkisi_denetle(komut):
                         self.arayuz.islem_yap(komut)
+                elif "kurcalama" in komut or "bosta" in komut:
+                    # Çocuk telefonu eline alıp rastgele dokunduğunda davetiyeyi yapıştır
+                    self.davetiye.cocuk_ilgisi_ceki()
                 else:
                     self.arayuz.islem_yap(komut)
 
