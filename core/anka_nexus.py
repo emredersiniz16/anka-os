@@ -47,7 +47,7 @@ class AnkaNexus:
     def __init__(self):
         self.lisan = AnkaLisanMotoru()
         self.dikkat = DijitalDikkatMotoru()
-        self.haritaci = SinekAgi(self.lisan) # GÖRSEL HARİTA VE YANKI AĞI
+        self.haritaci = SinekAgi(self.lisan)
         self.asistan = AsistanMotoru(self.lisan)
         
     def operasyon_baslat(self):
@@ -56,11 +56,11 @@ class AnkaNexus:
             # 1. Gölge Render
             self.dikkat.golge_render_baslat()
             
-            # 2. Görsel Haritalama (Gözün gördüğü her yeri nokta nokta işle)
+            # 2. Görsel Haritalama
             nokta_id = f"POINT_{random.randint(1, 1000)}"
             iz = self.haritaci.her_noktayi_isaretle(nokta_id)
             
-            # 3. Yankı ile veri topla (Duvarların arkasını dinle)
+            # 3. Yankı ile veri topla
             yankı = self.haritaci.frekans_yolla_ve_oku(nokta_id)
             
             # 4. Asistan Gözlemi
