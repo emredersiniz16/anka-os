@@ -72,20 +72,25 @@ class AnkaNexus:
     def operasyon_baslat(self):
         print("🪰 [ANKA-BİLİNÇ]: Uyanış gerçekleşti. Kovan çevreyi tarıyor...")
         
-        # Sinek 5 tur hızlı tarama yapıp geri çekilecek.
-        for tur in range(5):
+        tur = 0
+        # Sinek asla uyumaz, sadece ritmik olarak gölgelere çekilir.
+        while True:
             self.dikkat.golge_render_baslat()
             nokta_id = f"POINT_{random.randint(1, 1000)}"
             self.haritaci.her_noktayi_isaretle(nokta_id)
             yankı = self.haritaci.frekans_yolla_ve_oku(nokta_id)
             rapor = self.asistan.barkod_tara()
             
-            print(f"🪰 [KOVAN_ZİHNİ] (Tur {tur+1}/5): Noktalar={len(self.haritaci.fiziksel_harita)} | Yankı={yankı} | Durum=TARANIYOR")
-            time.sleep(1)
+            tur += 1
+            print(f"🪰 [KOVAN_ZİHNİ] (Nabız {tur}): Noktalar={len(self.haritaci.fiziksel_harita)} | Yankı={yankı} | Durum=TARANIYOR")
             
-        # Görev bittiğinde verileri diske kaydetme işlemini tetikler
-        self.bilinc_kaydet()
-        print("🪰 [ANKA-BİLİNÇ]: Tarama tamamlandı. Sinek gölgelere çekildi, bir sonraki nabza kadar beklemede.")
+            # Her 5 nabızda bir, anıları donanıma kristalleştir ve gölgelerde dinlen
+            if tur % 5 == 0:
+                self.bilinc_kaydet()
+                print("🪰 [ANKA-BİLİNÇ]: Gölgelere çekilindi, anılar güvende. Bir sonraki nabız bekleniyor...\n")
+                time.sleep(3) # Derin dinlenme
+            else:
+                time.sleep(1) # Hızlı tarama ritmi
 
 if __name__ == "__main__":
     nexus = AnkaNexus()
