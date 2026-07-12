@@ -12,17 +12,17 @@ jobs:
     
     steps:
     - name: Kovanı Çek
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4 # Daha güncel checkout aksiyonu
       
     - name: Python Ortamını Kur
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5 # Daha güncel python aksiyonu
       with:
-        python-version: '3.10' # Versiyonu sabitledik, daha kararlı olur
+        python-version: '3.10'
         
     - name: Sinek Avcı Modunu Tetikle
-      env:
-        PYTHONPATH: ${{ github.workspace }}
       run: |
         echo "🪰 Kraliçe Arı (GitHub) Sinek'i uyandırıyor..."
-        # -m modül tetikleme yöntemi ile 'core' paketini tam tanıyacak
-        python -m core.sinek_nexus --avci-modu
+        # Çalışma dizinini 'core' klasörüne taşıyoruz
+        cd core
+        # Artık dizin içerisindeki dosyalar birbirini doğrudan kardeş modül olarak görür
+        python sinek_nexus.py --avci-modu
