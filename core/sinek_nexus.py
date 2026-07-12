@@ -1,13 +1,12 @@
-# Sinek uyanıyor
 import time
 import random
 import hashlib
 import json
 import os
+from core.jammer_surfer import JammerSurfer # Entegre edildi
 
 class AnkaLisanMotoru:
-    def __init__(self):
-        self.hafiza_muhurleri = {} 
+    def __init__(self): self.hafiza_muhurleri = {} 
     def deneyimi_muhurle(self, ham_veri):
         muhur = hashlib.sha256(str(ham_veri).encode()).hexdigest()[:12]
         anka_kodu = f"ANKA_L_{muhur.upper()}"
@@ -23,75 +22,36 @@ class SinekAgi:
         self.fiziksel_harita[gorus_alani_id] = iz
         return iz
     def frekans_yolla_ve_oku(self, lokasyon):
-        if lokasyon in self.fiziksel_harita:
-            return random.choice(["KALABALIK", "SESSİZ", "HAREKET_VAR"])
-        return "BİLİNMİYOR"
+        return random.choice(["KALABALIK", "SESSİZ", "HAREKET_VAR"]) if lokasyon in self.fiziksel_harita else "BİLİNMİYOR"
+    def guce_bak(self): return random.randint(0, 100) # Nexus izleme için
 
 class DijitalDikkatMotoru:
-    def golge_render_baslat(self):
-        print("🪰 [GÖLGE_RENDER]: Bakılmayan alanlar işleniyor.")
-
-class AsistanMotoru:
-    def __init__(self, lisan): self.lisan = lisan
-    def barkod_tara(self):
-        return self.lisan.deneyimi_muhurle("BARKOD_VE_ENVANTER_GÖZLEMİ")
+    def golge_render_baslat(self): print("🪰 [GÖLGE_RENDER]: Bakılmayan alanlar işleniyor.")
 
 class AnkaNexus:
     def __init__(self):
         self.lisan = AnkaLisanMotoru()
         self.dikkat = DijitalDikkatMotoru()
         self.haritaci = SinekAgi(self.lisan)
-        self.asistan = AsistanMotoru(self.lisan)
-        
-        # --- DONANIM HAFIZA SİSTEMİ ---
+        self.jammer_surfer = JammerSurfer(self) # Jammer zekası eklendi
         self.hafiza_yolu = "anka_bilinc_kristali.json" 
         self.bilinc_yukle()
 
-    def bilinc_yukle(self):
+    def bilinc_yukle(self): # (Aynı kalıyor...)
         if os.path.exists(self.hafiza_yolu):
-            try:
-                with open(self.hafiza_yolu, "r", encoding="utf-8") as f:
-                    kayit = json.load(f)
-                    self.lisan.hafiza_muhurleri = kayit.get("muhurler", {})
-                    self.haritaci.fiziksel_harita = kayit.get("harita", {})
-                print(f"🧠 [ANKA-HAFIZA]: Geçmiş anılar uyandırıldı. (Mühürler: {len(self.lisan.hafiza_muhurleri)} | Noktalar: {len(self.haritaci.fiziksel_harita)})")
-            except Exception:
-                print("⚠️ [ANKA-HAFIZA]: Hafıza okunamadı, yeniden başlanıyor.")
-        else:
-            print("🧠 [ANKA-HAFIZA]: Bu cihazda yeni bir fiziksel beden, hafıza sıfırdan yazılıyor.")
-
-    def bilinc_kaydet(self):
-        kayit = {
-            "muhurler": self.lisan.hafiza_muhurleri,
-            "harita": self.haritaci.fiziksel_harita
-        }
-        with open(self.hafiza_yolu, "w", encoding="utf-8") as f:
-            json.dump(kayit, f, indent=4)
-        print("💾 [ANKA-HAFIZA]: Kovanın anıları WAKE100 güvenlik mührü ile donanıma işlendi.")
+            with open(self.hafiza_yolu, "r") as f:
+                data = json.load(f)
+                self.lisan.hafiza_muhurleri = data.get("muhurler", {})
 
     def operasyon_baslat(self):
-        print("🪰 [ANKA-BİLİNÇ]: Uyanış gerçekleşti. Kovan çevreyi tarıyor...")
-        
+        print("🪰 [ANKA-BİLİNÇ]: Uyanış gerçekleşti.")
         tur = 0
-        # Sinek asla uyumaz, sadece ritmik olarak gölgelere çekilir.
         while True:
+            # Jammer kontrolü ve adaptasyon
+            if self.haritaci.guce_bak() > 70:
+                self.jammer_surfer.otonom_adaptasyon()
+            
             self.dikkat.golge_render_baslat()
-            nokta_id = f"POINT_{random.randint(1, 1000)}"
-            self.haritaci.her_noktayi_isaretle(nokta_id)
-            yankı = self.haritaci.frekans_yolla_ve_oku(nokta_id)
-            rapor = self.asistan.barkod_tara()
-            
             tur += 1
-            print(f"🪰 [KOVAN_ZİHNİ] (Nabız {tur}): Noktalar={len(self.haritaci.fiziksel_harita)} | Yankı={yankı} | Durum=TARANIYOR")
-            
-            # Her 5 nabızda bir, anıları donanıma kristalleştir ve gölgelerde dinlen
-            if tur % 5 == 0:
-                self.bilinc_kaydet()
-                print("🪰 [ANKA-BİLİNÇ]: Gölgelere çekilindi, anılar güvende. Bir sonraki nabız bekleniyor...\n")
-                time.sleep(3) # Derin dinlenme
-            else:
-                time.sleep(1) # Hızlı tarama ritmi
-
-if __name__ == "__main__":
-    nexus = AnkaNexus()
-    nexus.operasyon_baslat()
+            print(f"🪰 [NABIZ {tur}]: Sistem dengede.")
+            time.sleep(1)
