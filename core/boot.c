@@ -8,7 +8,21 @@
 #include <string.h>
 #include <time.h>
 
-// --- CORE MODÜLLERİ (Sistem artık tamamen birbirine bağlı) ---
+// --- EKSİK FONKSİYON TANIMLARI (Linker Hatalarını Önlemek İçin) ---
+int get_battery_level() {
+    return 100; // Şimdilik pili %100 göster
+}
+
+int user_confirmed_evolution() {
+    return 1; // Kullanıcı her zaman onaylamış gibi davran
+}
+
+void init_touch() {
+    // Dokunmatik başlatma gölgesi
+}
+// ----------------------------------------------------------------
+
+// --- CORE MODÜLLERİ ---
 #include "ui_engine.c"
 #include "anim_engine.c" 
 #include "agent_logic.c" 
@@ -22,29 +36,13 @@
 #include "ota_engine.c"      
 #include "formatter.c"       
 
-// --- EKSİK FONKSİYON TAMAMLAMALARI (GÖLGE FONKSİYONLAR) ---
-int get_battery_level() {
-    return 100; // Şimdilik pili %100 göster
-}
-
-int user_confirmed_evolution() {
-    return 1; // Kullanıcı her zaman onaylamış gibi davran (Şimdilik)
-}
-
-void init_touch() {
-    // Dokunmatik başlatma gölgesi (İçi boş, sistemi çökertmez)
-}
-// ---------------------------------------------------------
-
 // --- SİSTEMİN DİRİLİŞ KOMUTLARI ---
 void start_kovan_zihni() {
     printf("🪰 [SİSTEM]: Kovan zihni (Nexus) uyanıyor...\n");
-    // Nexus artık Jammer ve Rejenere motorlarını kendi içinde yönetiyor
     system("su -c 'python3 core/sinek_nexus.py &' "); 
 }
 
 void network_sync_protocol() {
-    // Sinek, dış dünyayla bağlantısını "verify" modunda başlatıyor
     system("su -c 'python3 agents/net_sync.py --init &' ");
     printf("🪰 [AJAN]: Ağ optimizasyon ajanları aktif edildi.\n");
 }
@@ -59,7 +57,6 @@ void splash_screen() {
 void boot_sequence() {
     system("clear");
     printf("\033[1;36m --- ANKA OS: BİLİNÇLİ KOVAN --- \033[0m\n");
-    // Sistem daha açılırken ortam taraması (Jammer check)
     system("su -c 'python3 core/jammer_surfer.py --check-boot-env &'");
     printf("Sistem Senkronize... [ AKTİF ]\n");
     sleep(2);
@@ -78,7 +75,6 @@ int main() {
     boot_sequence();
 
     // --- 2. DONANIMLAR VE CHECK-UP ---
-    // Eğer kurulum hata verirse otomatik kurtarma (Rejenere) devreye girer
     if(system("su -c 'python3 agents/setup_engine.py'") != 0) {
         system("su -c 'python3 core/rejenere_motoru.py --force-recover &'");
     }
@@ -89,26 +85,24 @@ int main() {
 
     // Ekran ve Dokunmatik yapılandırması
     int fb_fd = open("/dev/fb0", O_RDWR);
-    struct fb_var_screeninfo vinfo;
-    ioctl(fb_fd, FBIOGET_VSCREENINFO, &vinfo);
-    close(fb_fd); 
-
-    int w = vinfo.xres;
-    int h = vinfo.yres;
-    float scale = (float)w / 1080.0f;
-
-    update_fly_animation(0, w, h, scale);
+    if (fb_fd >= 0) {
+        struct fb_var_screeninfo vinfo;
+        if (ioctl(fb_fd, FBIOGET_VSCREENINFO, &vinfo) == 0) {
+            int w = vinfo.xres;
+            int h = vinfo.yres;
+            float scale = (float)w / 1080.0f;
+            update_fly_animation(0, w, h, scale);
+        }
+        close(fb_fd); 
+    }
+    
     init_touch();
-
     printf("🎙️ [SİSTEM]: Anka OS Aktif, Kovan tam kapasite.\n");
 
     // --- 3. SÜREKLİ NABIZ DÖNGÜSÜ ---
     while(1) {
-        // Ağ bütünlüğü ve Jammer kontrolü
         system("su -c 'python3 agents/net_sync.py --verify'");
-        // Nexus nabzı: Sinek asla uyumaz, sürekli gözlemler
         system("su -c 'python3 core/sinek_nexus.py --pulse'");
-        
         sleep(5);
     }
     return 0;
