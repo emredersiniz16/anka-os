@@ -1,4 +1,4 @@
-# core/sinek_nexus.py - FINAL (Sistem Korumalı & Bağlam Duyarlı)
+# core/sinek_nexus.py - FINAL (Dizin Karmaşasını Çözen Sürüm)
 
 import sys
 import os
@@ -7,13 +7,13 @@ import random
 import hashlib
 import json
 
-# --- 1. YOL BULUCU (Bağlam Koruması) ---
-# Bu blok, kodun GitHub'da veya telefonun derinliklerinde nerede olursa olsun
-# 'core' klasörünü ve diğer modülleri bulmasını sağlar.
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# --- YOL KİLİDİ ---
+# GitHub'da veya telefonda, kodun bulunduğu dizini 'root' kabul ettiriyoruz
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from core.jammer_surfer import JammerSurfer
-from core.monitor import SinekMonitor  # Sağlık kontrolcüsünü bağladık
+# Dizini sabitlediğimiz için artık 'core.' öneki olmadan import ediyoruz
+from jammer_surfer import JammerSurfer
+from monitor import SinekMonitor
 
 class AnkaLisanMotoru:
     def __init__(self): self.hafiza_muhurleri = {} 
@@ -44,6 +44,7 @@ class AnkaNexus:
         self.dikkat = DijitalDikkatMotoru()
         self.haritaci = SinekAgi(self.lisan)
         self.jammer_surfer = JammerSurfer(self) 
+        # Telefon için güvenli yol
         self.hafiza_yolu = "/data/local/tmp/anka_bilinc_kristali.json" 
         self.bilinc_yukle()
 
@@ -54,6 +55,7 @@ class AnkaNexus:
                     data = json.load(f)
                     self.lisan.hafiza_muhurleri = data.get("muhurler", {})
         except Exception as e:
+            # SinekMonitor burada erişilebilir, çünkü aynı dizinde
             SinekMonitor.log_critical(f"Bellek yüklenemedi: {e}")
 
     def operasyon_baslat(self):
@@ -61,7 +63,6 @@ class AnkaNexus:
         tur = 0
         while True:
             try:
-                # Otonom Jammer adaptasyonu
                 if self.haritaci.guce_bak() > 70:
                     self.jammer_surfer.otonom_adaptasyon()
                 
@@ -71,7 +72,7 @@ class AnkaNexus:
                 time.sleep(1)
             except Exception as e:
                 SinekMonitor.log_critical(f"Operasyon döngüsü hatası: {str(e)}")
-                time.sleep(5) # Hata anında 5 saniye bekle ve tekrar dene (Sistem donmasın)
+                time.sleep(5)
 
 if __name__ == "__main__":
     nexus = AnkaNexus()
