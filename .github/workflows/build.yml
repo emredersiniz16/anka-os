@@ -25,9 +25,10 @@ jobs:
 
     - name: Anka OS Çekirdeğini Derle
       run: |
-        # DÜZELTME: Tüm C dosyalarını derleyip tek binary haline getiriyoruz.
-        # -I./core ile header dosyaları (hardware_types.h dahil) doğru şekilde bulunur.
-        arm-linux-gnueabi-gcc -static -Os -I./core core/*.c -o anka_os.bin
+        # DÜZELTME: Tüm modüller zaten boot.c içine include edildiği için 
+        # "*.c" yerine sadece "boot.c" dosyasını derlememiz yeterli. 
+        # Bu sayede 'multiple definition' (çift tanımlama) hatasını yok ediyoruz.
+        arm-linux-gnueabi-gcc -static -Os -I./core core/boot.c -o anka_os.bin
 
     - name: Kendi Açık Kaynak Kurulum Motorumuzu Hazırla
       run: |
