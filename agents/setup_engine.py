@@ -1,31 +1,39 @@
 import json
 import os
-from profile_manager import profil_kaydet
+import sys
+
+sys.path.append(os.getcwd())
+
+try:
+    from profile_manager import profil_kaydet
+except ImportError:
+    def profil_kaydet(isim, hitap):
+        with open("profil.json", "w") as f:
+            json.dump({"isim": isim, "hitap": hitap}, f)
 
 def kurulum_yap():
     setup_file = "installed.flag"
     
-    # Eğer sistem zaten kuruluysa tekrar çalıştırma
     if os.path.exists(setup_file):
         return
 
-    print("🚀 Anka OS İlk Kurulum Başlıyor...")
-    print("Sinek: Selam kanka! Ben Anka OS, senin yeni hacker ortağınım.")
+    print("🚀 Anka OS: Sistem Senkronizasyonu Başlıyor...")
+    print("Sinek: Selam kanka! Ben Anka OS, sistemini hızlandırmak için buradayım.")
     
-    # İsim alma
-    isim = input("Sinek: Seni nasıl tanıyamam? İsmin ne kanka? ")
+    isim = input("Sinek: Seni nasıl tanıyamam? İsmin ne kanka? ").strip()
+    if not isim: isim = "Dostum"
     
-    # Hitap tercihi alma
-    print(f"Sinek: Memnun oldum {isim}! Sana nasıl hitap edeyim?")
-    tercih = input("1- İsmimle hitap et, 2- 'Kanka' demeye devam et: ")
+    print(f"Sinek: Memnun oldum {isim}! Bağlantı tercihin ne olsun?")
+    tercih = input("1- Kişiselleştirilmiş yönetim, 2- Standart 'Kanka' modu: ")
     
     hitap = "isim" if tercih == "1" else "kanka"
     
-    # Ayarları kaydet
     profil_kaydet(isim, hitap)
     
-    # Kurulum tamamlandı bayrağını oluştur
     with open(setup_file, "w") as f:
         f.write("OK")
         
-    print(f"Sinek: Her şey hazır {isim}. Artık seninle omuz omuza çalışıyoruz!")
+    print(f"Sinek: Donanım ve ağ optimizasyonu tamamlandı {isim}. Artık sistemin daha akıcı.")
+
+if __name__ == "__main__":
+    kurulum_yap()
