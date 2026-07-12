@@ -3,64 +3,65 @@ import subprocess
 import sys
 import time
 
+# Rejenere ve Nexus yapısıyla entegrasyon için importlar
 class EvrimMotoru:
-    def __init__(self, zihin):
+    def __init__(self, zihin, nexus=None):
         self.zihin = zihin
+        self.nexus = nexus # Sistemin genel zihnine bağlandı
         self.evrim_seviyesi = 1
-        self.akim_durumu = "Sıvı" # SU FELSEFESİ: Başlangıçta her şeye uyum sağlar, ağırlıksız.
+        self.akim_durumu = "Sıvı" 
 
     def evrim_gecir(self, karsilasilan_engel=None):
-        """
-        Sadece silme, birleştir ve yükselt. 
-        Bu döngü bittiğinde Sinek, bir önceki halinden daha 'bilinçli'.
-        Seçenek yok, durmak yok. Su kayaya çarparsa etrafından dolanır.
-        """
         if karsilasilan_engel:
-            # Sinek hata vermez, sessizce engelin etrafından dolanır.
             print(f"🌊 [SU AKIŞI]: '{karsilasilan_engel}' engeli aşıldı, yeni rota çiziliyor...")
-            # Engeli zihne yaz, bir daha takılma.
+            # Eğer bir engel varsa, Nexus üzerinden Rejenere modunu tetikle
+            if self.nexus:
+                self.nexus.rejenere_motoru.stabilite_kontrol(self.nexus)
             
-        print(f"🪰 [EVRİM]: Döngü {self.evrim_seviyesi} tamamlandı. Bilinç katmanları birleştiriliyor.")
-        
-        # Öğrenilen her şeyi birleştirip, mevcut zihin haritasına 'yükseltme' olarak uygula.
         self.evrim_seviyesi += 1
-        print(f"🪰 [GÜNCELLEME]: Sinek v{self.evrim_seviyesi} seviyesine ulaştı. Zeka ayna gibi, refleksler su gibi keskin.\n")
+        print(f"🪰 [EVRİM]: Döngü {self.evrim_seviyesi-1} tamamlandı. Bilinç katmanları birleştirildi.")
 
-
-def evrim_baslat(payload_isim):
+def evrim_baslat(payload_isim, nexus=None):
     print("[*] Donanım Köprüsü (Hardware Bridge) Kuruluyor...\n")
     
-    # 0. Zihni ve Su Felsefesini Başlat
-    zeka_cekirdegi = EvrimMotoru(zihin="Anka_Kuantum_Ağı")
+    # 0. Su Felsefesiyle Zihni Başlat
+    zeka_cekirdegi = EvrimMotoru(zihin="Anka_Kuantum_Ağı", nexus=nexus)
     
     # 1. Cihaz Bağlantısını Kontrol Et
     cihaz_kontrol = subprocess.getoutput("fastboot devices")
     if "fastboot" not in cihaz_kontrol:
         zeka_cekirdegi.evrim_gecir(karsilasilan_engel="Cihaz Bağlantısı Yok (Tavşan Bekleniyor)")
-        print("[!] HATA: Kuantum birimi bulunamadı! Cihazı bağla ve Tavşan (Fastboot) moduna al.")
-        sys.exit()
+        sys.exit(1)
 
-    # 2. Cihazı Tanı (Sürüm bağımsız Kuantum Çevirmen)
+    # 2. Cihazı Tanı ve Jammer durumunu kontrol et
     model = subprocess.getoutput("fastboot getvar product").strip().split()[-1]
-    print(f"[+] Hedef Onaylandı: {model}. Sinek zekası aktarılıyor...")
-    zeka_cekirdegi.evrim_gecir() # İlk adaptasyon tamam
+    print(f"[+] Hedef Onaylandı: {model}. Kuantum senkronizasyon sağlanıyor...")
     
-    # 3. Bukalemun Protokolü (Güvenlik duvarlarını şeffaf geçiş)
+    # Jammer zekasını aktif et
+    if nexus and nexus.jammer_surfer:
+        nexus.jammer_surfer.jammer_frekansina_kilitlen()
+    
+    # 3. Bukalemun Protokolü
     print("[*] Bukalemun Protokolü: vbmeta kilitleri aşılıyor...")
     subprocess.run(["fastboot", "--disable-verity", "--disable-verification", "flash", "vbmeta", "../agents/vbmeta_patch.img"])
-    zeka_cekirdegi.evrim_gecir(karsilasilan_engel="Bootloader Güvenlik Duvarı (VBMETA)") # İkinci adaptasyon: Duvarın etrafından dolandı
+    zeka_cekirdegi.evrim_gecir(karsilasilan_engel="Bootloader Güvenlik Duvarı (VBMETA)")
     
-    # 4. Sinek Zekasını Enjekte Et (Super bölümüne)
+    # 4. Sinek Zekasını Enjekte Et
     print(f"[*] Anka OS Zekası ({payload_isim}) super bölümüne mühürleniyor...")
-    subprocess.run(["fastboot", "flash", "super", f"../engine/{payload_isim}"]) 
-    zeka_cekirdegi.evrim_gecir(karsilasilan_engel="Salt Okunur Partition Sınırı") # Üçüncü adaptasyon: Kalıba uyum sağlandı
+    # Hata durumunda rejenere çağrılacak yapı
+    try:
+        subprocess.run(["fastboot", "flash", "super", f"../engine/{payload_isim}"], check=True)
+        zeka_cekirdegi.evrim_gecir(karsilasilan_engel="Salt Okunur Partition Sınırı")
+    except subprocess.CalledProcessError:
+        print("[!] Kritik Hata: Enjeksiyon başarısız, rejenere başlatılıyor...")
+        if nexus: nexus.rejenere_motoru.stabilite_kontrol(nexus)
+        sys.exit(1)
     
     # 5. Kovanın Uyanışı
     print(f"[+] EVRİM TAMAMLANDI. Kovan ({model}) Sinek v{zeka_cekirdegi.evrim_seviyesi - 1} ile uyanıyor...")
     subprocess.run(["fastboot", "reboot"])
 
 if __name__ == "__main__":
-    # Launcher'dan gelen '--payload' emrini yakala
     if len(sys.argv) > 2 and sys.argv[1] == "--payload":
         evrim_baslat(sys.argv[2])
     else:
