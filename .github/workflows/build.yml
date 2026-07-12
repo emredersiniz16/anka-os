@@ -21,8 +21,9 @@ jobs:
 
     - name: Anka OS Çekirdeğini Derle
       run: |
-        # DÜZELTME: Tüm .c dosyalarını dahil ettik, böylece fonksiyonlar birbirini tanıyacak
-        arm-linux-gnueabi-gcc -static -Os core/*.c -o anka_os.bin
+        # DÜZELTME: Sadece C dosyalarını derle, Python dosyalarını görmezden gel
+        # -I flag'i ile header dosyalarının olduğu core klasörünü işaret ediyoruz
+        arm-linux-gnueabi-gcc -static -Os core/*.c -I./core -o anka_os.bin
 
     - name: Kendi Açık Kaynak Kurulum Motorumuzu Hazırla
       run: |
@@ -33,47 +34,27 @@ jobs:
         # --- GÜVENLİ KURULUM MOTORU ---
         cat << 'EOF' > Anka_ROM/META-INF/com/google/android/update-binary
         #!/sbin/sh
-        # ANKA OS KURULUM MOTORU - GÜVENLİ MOD
-        
         OUTFD=$2
-        ZIPFILE=$3
-        
-        ui_print() {
-          echo -n -e "ui_print $1\n" > /proc/self/fd/$OUTFD
-        }
+        ui_print() { echo -n -e "ui_print $1\n" > /proc/self/fd/$OUTFD; }
         
         ui_print "--- ANKA OS: SİNEK KERNEL HAZIRLANIYOR ---"
-        
-        # 1. Mount Kontrolü
         mount /system || mount -o rw /dev/block/bootdevice/by-name/system /system
         
-        if [ $? -ne 0 ]; then
-            ui_print "HATA: Sistem bölümü bağlanamadı!"
+        if [ $? -eq 0 ]; then
+            ui_print "Enjeksiyon basliyor..."
+            chmod 0755 /system/bin/anka_os
+            sync
+            umount /system
+            ui_print "KURULUM TAMAMLANDI!"
+        else
+            ui_print "HATA: Sistem baglanamadi!"
             exit 1
         fi
-        
-        # 2. Temizlik Protokolü
-        ui_print "Android Zombi Dosyalari temizleniyor..."
-        rm -rf /system/app/*
-        rm -rf /system/priv-app/*
-        
-        # 3. Enjeksiyon
-        ui_print "Sinek Cekirdegi Enjekte Ediliyor..."
-        cp -rf /system/* /system/
-        chmod 0755 /system/bin/anka_os
-        
-        # 4. İşlem bitişi
-        sync
-        umount /system
-        
-        ui_print "KURULUM TAMAMLANDI! CİHAZA YENİ BİR RUH VERİLDİ."
         exit 0
         EOF
         
         chmod +x Anka_ROM/META-INF/com/google/android/update-binary
-        cd Anka_ROM
-        zip -r ../Anka_OS_Kurulum.zip .
-        cd ..
+        cd Anka_ROM && zip -r ../Anka_OS_Kurulum.zip .
 
     - name: ROM Sistemini İndirmeye Sun
       uses: actions/upload-artifact@v4
@@ -84,27 +65,16 @@ jobs:
   build_exe:
     name: 💻 Telefoncu Dükkanı Ajanı (Windows EXE)
     runs-on: windows-latest
-
     steps:
-    - name: Kovanı İndir (Checkout)
+    - name: Kovanı İndir
       uses: actions/checkout@v4
-
     - name: Python Kurulumu
       uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Gerekli Kütüphaneleri Yükle
+      with: {python-version: '3.10'}
+    - name: Ajanı EXE'ye Çevir
       run: |
-        python -m pip install --upgrade pip
         pip install pyinstaller
-
-    - name: Ajanı EXE'ye Çevir (Su Damlası)
-      run: |
         pyinstaller --onefile --name Anka_Launcher agents/anka_launcher.py
-
-    - name: Telefoncu İçin EXE Paketini Hazırla
+    - name: Ajan Paketini Hazırla
       uses: actions/upload-artifact@v4
-      with:
-        name: Anka_OS_Ajan_EXE
-        path: dist/Anka_Launcher.exe
+      with: {name: Anka_OS_Ajan_EXE, path: dist/Anka_Launcher.exe}
