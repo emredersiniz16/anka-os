@@ -21,9 +21,9 @@ jobs:
 
     - name: Anka OS Çekirdeğini Derle
       run: |
-        # DÜZELTME: Sadece C dosyalarını derle, Python dosyalarını görmezden gel
-        # -I flag'i ile header dosyalarının olduğu core klasörünü işaret ediyoruz
-        arm-linux-gnueabi-gcc -static -Os core/*.c -I./core -o anka_os.bin
+        # DÜZELTME: Tüm C dosyalarını derleyip tek binary haline getiriyoruz.
+        # -I./core ile header dosyaları (hardware_types.h dahil) doğru şekilde bulunur.
+        arm-linux-gnueabi-gcc -static -Os -I./core core/*.c -o anka_os.bin
 
     - name: Kendi Açık Kaynak Kurulum Motorumuzu Hazırla
       run: |
@@ -54,6 +54,7 @@ jobs:
         EOF
         
         chmod +x Anka_ROM/META-INF/com/google/android/update-binary
+        # Anka_ROM klasörüne girip ZIP'i oluşturuyoruz
         cd Anka_ROM && zip -r ../Anka_OS_Kurulum.zip .
 
     - name: ROM Sistemini İndirmeye Sun
@@ -73,6 +74,7 @@ jobs:
       with: {python-version: '3.10'}
     - name: Ajanı EXE'ye Çevir
       run: |
+        python -m pip install --upgrade pip
         pip install pyinstaller
         pyinstaller --onefile --name Anka_Launcher agents/anka_launcher.py
     - name: Ajan Paketini Hazırla
