@@ -4,13 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/input.h>
-
-// Donanım yeteneklerini tutacağımız yapı
-typedef struct {
-    int has_home_button;
-    int has_volume_keys;
-    int has_touch_screen;
-} DeviceHardware;
+#include "hardware_types.h" // Tek merkezden referans alıyoruz
 
 DeviceHardware current_hardware;
 
@@ -18,9 +12,8 @@ DeviceHardware current_hardware;
 void scan_hardware_inputs() {
     printf("[SİSTEM]: Donanim kontrol ediliyor... Tuş dizilimleri taranıyor.\n");
     
-    // Simülasyon (Gerçek donanım taraması /dev/input/event* üzerinden yapılacak)
+    // Simülasyon
     current_hardware.has_home_button = 1; 
-    current_hardware.has_volume_keys = 1;
     current_hardware.has_touch_screen = 1;
     
     // --- DONANIM GÜVENLİK KONTROLÜ (MÜHÜR) ---
@@ -37,7 +30,7 @@ void scan_hardware_inputs() {
 
     if (eksik_parca) {
         printf("[ANKA-GÜVENLİK]: Donanim mühürlenemedi. Kurulum durduruldu.\n");
-        exit(1); // Sinek, kararsız bir bedene enjekte edilmeyi reddeder.
+        exit(1); 
     } else {
         printf("[SİSTEM]: Tum donanimlar onaylandi. Fiziksel yetenekler haritalandi.\n");
         printf("[ANKA-BİLİNÇ]: Donanim hazir, Sinek uyanisa geciyor...\n");
