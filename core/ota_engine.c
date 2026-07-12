@@ -1,15 +1,19 @@
 // ota_engine.c - EVRİM VE OTA PROTOKOLÜ (FULL ENTEGRE)
 #include <stdio.h>
 #include <stdlib.h>
+#include "hardware_types.h" // Yapı tanımını (struct) içeri dahil ediyoruz
 
 extern DeviceHardware current_hardware;
+
+// Eksik olan fonksiyon prototiplerini buraya ekledik (linker hatasını önler)
+int user_confirmed_evolution();
 
 void check_for_evolution() {
     printf("\n=================================================\n");
     printf("        [ SİNEK EVRİM PROTOKOLÜ AKTİF ]        \n");
     printf("=================================================\n");
     
-    // 1. GitHub bağlantısını kontrol et ve güncellemeleri çek
+    // 1. GitHub bağlantısını kontrol et
     printf("SİNEK: Kovan zihni bulutla senkronize ediliyor...\n");
     int status = system("git -C /data/local/tmp/anka-os fetch origin main");
     
@@ -26,7 +30,6 @@ void check_for_evolution() {
         }
         
         // 3. Kullanıcı onayını bekle ve EvrimMotoru'nu tetikle
-        // Not: Burada 'get_user_input()' benzeri bir fonksiyonun olduğunu varsayıyoruz
         if (user_confirmed_evolution()) { 
             printf("👉 [OTA]: Evrim başlatılıyor... Kovan yeniden yapılandırılıyor.\n");
             system("su -c 'python3 core/evrim_motoru.py --payload universal_sinek.bin &'");
