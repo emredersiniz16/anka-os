@@ -5,6 +5,10 @@ on:
   push:
     branches: [ "main" ]
 
+# Güvenlik için izinleri kısıtlayalım (GitHub Best Practice)
+permissions:
+  contents: read
+
 jobs:
   build_rom:
     name: 📱 Anka OS Çekirdeği (Android ZIP)
@@ -54,29 +58,39 @@ jobs:
         EOF
         
         chmod +x Anka_ROM/META-INF/com/google/android/update-binary
-        # Anka_ROM klasörüne girip ZIP'i oluşturuyoruz
-        cd Anka_ROM && zip -r ../Anka_OS_Kurulum.zip .
+        # Anka_ROM klasörüne girip ZIP'i oluşturuyoruz (Log kirliliği olmaması için -q eklendi)
+        cd Anka_ROM && zip -rq ../Anka_OS_Kurulum.zip .
 
     - name: ROM Sistemini İndirmeye Sun
       uses: actions/upload-artifact@v4
       with:
         name: Anka_OS_TWRP_ROM
         path: Anka_OS_Kurulum.zip
+        retention-days: 7 # Sunucuda 7 gün tutulur
 
   build_exe:
     name: 💻 Telefoncu Dükkanı Ajanı (Windows EXE)
     runs-on: windows-latest
+    
     steps:
     - name: Kovanı İndir
       uses: actions/checkout@v4
+      
     - name: Python Kurulumu
-      uses: actions/setup-python@v4
-      with: {python-version: '3.10'}
+      uses: actions/setup-python@v5 # v4'ten v5'e güncellendi
+      with: 
+        python-version: '3.10'
+        cache: 'pip' # Pip cache eklenerek Windows build süresi hızlandırıldı
+        
     - name: Ajanı EXE'ye Çevir
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
         pyinstaller --onefile --name Anka_Launcher agents/anka_launcher.py
+        
     - name: Ajan Paketini Hazırla
       uses: actions/upload-artifact@v4
-      with: {name: Anka_OS_Ajan_EXE, path: dist/Anka_Launcher.exe}
+      with: 
+        name: Anka_OS_Ajan_EXE
+        path: dist/Anka_Launcher.exe
+        retention-days: 7
