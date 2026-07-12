@@ -43,22 +43,21 @@ void ui_render(const char *last_message) {
 
     int w = vinfo.xres;
     int h = vinfo.yres;
-    float scale = (float)w / 1080.0f;
     
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
     int is_day = (tm->tm_hour >= 7 && tm->tm_hour <= 18) ? 1 : 0;
 
-    // SİNEK DURUMUNA GÖRE GÖRSELLEŞTİRME
+    // SİNEK DURUMUNA GÖRE GÖRSELLEŞTİRME (YEDEKLEMELİ / FALLBACK)
     char fly_cmd[512];
     if (current_state == FLY_MIRROR) {
-        // Yansıtma: Ortada belirgin Sinek
-        sprintf(fly_cmd, "fbi -d /dev/fb0 -g 250x250+%d+%d -a -noverbose -T 1 assets/sinek_ayna.GIF &", w/2 - 125, h/2 - 125);
+        // Yansıtma: Ayna GIF'i yoksa uçan sineğe dön
+        sprintf(fly_cmd, "fbi -d /dev/fb0 -g 250x250+%d+%d -a -noverbose -T 1 assets/sinek_ayna.GIF || fbi -d /dev/fb0 -g 150x150+%d+%d -a -noverbose -T 1 assets/sinek_ucuyor.GIF &", w/2 - 125, h/2 - 125, w - 250, 50);
     } else if (current_state == FLY_THINK) {
-        // Düşünme: Ortada elini yüzünü silen
-        sprintf(fly_cmd, "fbi -d /dev/fb0 -g 200x200+%d+%d -a -noverbose -T 1 assets/sinek_dusunen.GIF &", w/2 - 100, h/2 - 100);
+        // Düşünme: Düşünen GIF yoksa uçan sineğe dön
+        sprintf(fly_cmd, "fbi -d /dev/fb0 -g 200x200+%d+%d -a -noverbose -T 1 assets/sinek_dusunen.GIF || fbi -d /dev/fb0 -g 150x150+%d+%d -a -noverbose -T 1 assets/sinek_ucuyor.GIF &", w/2 - 100, h/2 - 100, w - 250, 50);
     } else {
-        // İdle/Normal: Köşede uçan
+        // İdle/Normal: Standart uçuş
         sprintf(fly_cmd, "fbi -d /dev/fb0 -g 150x150+%d+%d -a -noverbose -T 1 assets/sinek_ucuyor.GIF &", w - 250, 50);
     }
     system(fly_cmd);
