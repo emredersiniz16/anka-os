@@ -20,7 +20,9 @@ jobs:
         python-version: '3.x'
         
     - name: Sinek Avcı Modunu Tetikle
+      env:
+        PYTHONPATH: ${{ github.workspace }} # Python'un kök dizini (anka-os) paket olarak görmesini sağlar
       run: |
         echo "🪰 Kraliçe Arı (GitHub) Sinek'i uyandırıyor..."
-        # Dosya ismi güncellendi: anka_nexus yerine sinek_nexus kullanıyoruz
+        # PYTHONPATH sayesinde 'core' klasörü artık bir modül olarak tanınacak
         python core/sinek_nexus.py --avci-modu
