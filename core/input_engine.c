@@ -18,11 +18,28 @@ DeviceHardware current_hardware;
 void scan_hardware_inputs() {
     printf("[SİSTEM]: Donanim kontrol ediliyor... Tuş dizilimleri taranıyor.\n");
     
-    // Şimdilik simüle edilmiş bir donanım taraması (Gerçekte /dev/input/event* okunur)
-    // Cihazda Home tuşu ve Dokunmatik ekran olduğunu varsayıyoruz.
+    // Simülasyon (Gerçek donanım taraması /dev/input/event* üzerinden yapılacak)
     current_hardware.has_home_button = 1; 
     current_hardware.has_volume_keys = 1;
     current_hardware.has_touch_screen = 1;
     
-    printf("[SİSTEM]: Fiziksel/Dokunmatik yetenekler haritalandi.\n");
+    // --- DONANIM GÜVENLİK KONTROLÜ (MÜHÜR) ---
+    int eksik_parca = 0;
+
+    if (!current_hardware.has_home_button) {
+        printf("[HATA]: KRİTİK! Home tusu algilanamadi!\n");
+        eksik_parca = 1;
+    }
+    if (!current_hardware.has_touch_screen) {
+        printf("[HATA]: KRİTİK! Dokunmatik ekran algilanamadi!\n");
+        eksik_parca = 1;
+    }
+
+    if (eksik_parca) {
+        printf("[ANKA-GÜVENLİK]: Donanim mühürlenemedi. Kurulum durduruldu.\n");
+        exit(1); // Sinek, kararsız bir bedene enjekte edilmeyi reddeder.
+    } else {
+        printf("[SİSTEM]: Tum donanimlar onaylandi. Fiziksel yetenekler haritalandi.\n");
+        printf("[ANKA-BİLİNÇ]: Donanim hazir, Sinek uyanisa geciyor...\n");
+    }
 }
