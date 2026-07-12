@@ -21,8 +21,8 @@ jobs:
 
     - name: Anka OS Çekirdeğini Derle
       run: |
-        # -static ekledik ki kütüphane bağımlılığı yüzünden telefon açılışta çökmesin
-        arm-linux-gnueabi-gcc -static -Os core/boot.c -o anka_os.bin
+        # DÜZELTME: Tüm .c dosyalarını dahil ettik, böylece fonksiyonlar birbirini tanıyacak
+        arm-linux-gnueabi-gcc -static -Os core/*.c -o anka_os.bin
 
     - name: Kendi Açık Kaynak Kurulum Motorumuzu Hazırla
       run: |
@@ -30,7 +30,7 @@ jobs:
         mkdir -p Anka_ROM/system/bin
         cp anka_os.bin Anka_ROM/system/bin/anka_os
         
-        # --- GÜVENLİ KURULUM MOTORU (GÜNCEL) ---
+        # --- GÜVENLİ KURULUM MOTORU ---
         cat << 'EOF' > Anka_ROM/META-INF/com/google/android/update-binary
         #!/sbin/sh
         # ANKA OS KURULUM MOTORU - GÜVENLİ MOD
@@ -52,7 +52,7 @@ jobs:
             exit 1
         fi
         
-        # 2. Temizlik Protokolü (Tüm sistemi silmek yerine zombi uygulamaları temizle)
+        # 2. Temizlik Protokolü
         ui_print "Android Zombi Dosyalari temizleniyor..."
         rm -rf /system/app/*
         rm -rf /system/priv-app/*
@@ -69,7 +69,6 @@ jobs:
         ui_print "KURULUM TAMAMLANDI! CİHAZA YENİ BİR RUH VERİLDİ."
         exit 0
         EOF
-        # ---------------------------------------
         
         chmod +x Anka_ROM/META-INF/com/google/android/update-binary
         cd Anka_ROM
