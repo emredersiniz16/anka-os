@@ -1,4 +1,4 @@
-# core/sinek_nexus.py - FINAL (Dizin Karmaşasını Çözen Sürüm)
+# core/sinek_nexus.py - FINAL (Gözlemci Entegre Sürüm)
 
 import sys
 import os
@@ -8,12 +8,12 @@ import hashlib
 import json
 
 # --- YOL KİLİDİ ---
-# GitHub'da veya telefonda, kodun bulunduğu dizini 'root' kabul ettiriyoruz
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 # Dizini sabitlediğimiz için artık 'core.' öneki olmadan import ediyoruz
 from jammer_surfer import JammerSurfer
 from monitor import SinekMonitor
+from kuantum_gozlemci import KuantumGozlemci # Gözlemci eklendi
 
 class AnkaLisanMotoru:
     def __init__(self): self.hafiza_muhurleri = {} 
@@ -44,6 +44,10 @@ class AnkaNexus:
         self.dikkat = DijitalDikkatMotoru()
         self.haritaci = SinekAgi(self.lisan)
         self.jammer_surfer = JammerSurfer(self) 
+        
+        # --- GÖZLEMCİ ENTEGRASYONU ---
+        self.gozlemci = KuantumGozlemci(self)
+        
         # Telefon için güvenli yol
         self.hafiza_yolu = "/data/local/tmp/anka_bilinc_kristali.json" 
         self.bilinc_yukle()
@@ -55,7 +59,6 @@ class AnkaNexus:
                     data = json.load(f)
                     self.lisan.hafiza_muhurleri = data.get("muhurler", {})
         except Exception as e:
-            # SinekMonitor burada erişilebilir, çünkü aynı dizinde
             SinekMonitor.log_critical(f"Bellek yüklenemedi: {e}")
 
     def operasyon_baslat(self):
@@ -66,6 +69,7 @@ class AnkaNexus:
                 if self.haritaci.guce_bak() > 70:
                     self.jammer_surfer.otonom_adaptasyon()
                 
+                # Gözlemci aktif nabız kontrolünde
                 self.dikkat.golge_render_baslat()
                 tur += 1
                 print(f"🪰 [NABIZ {tur}]: Sistem dengede.")
