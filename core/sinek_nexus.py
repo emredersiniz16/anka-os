@@ -50,6 +50,9 @@ class AnkaNexus:
         self.hafiza_yolu = "/data/local/tmp/anka_bilinc_kristali.json" 
         self.bilinc_yukle()
 
+    def is_alive(self):
+        return True
+
     def bilinc_yukle(self):
         try:
             if os.path.exists(self.hafiza_yolu):
@@ -62,7 +65,7 @@ class AnkaNexus:
     def operasyon_baslat(self):
         print("🪰 [ANKA-BİLİNÇ]: Uyanış gerçekleşti.")
         tur = 0
-        while True:
+        while self.is_alive():
             try:
                 # Gözlemci varlığı kontrolü
                 if hasattr(self, 'gozlemci') and self.gozlemci:
