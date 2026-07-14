@@ -3,14 +3,26 @@
 # --- ANKA OS: ANA BAŞLATICI VE BOOT YÖNETİCİSİ (ROOT ZIRHLI) ---
 
 clear
-echo "🔊 [ANKA OS]: Sistem derleniyor, bekle kanka..."
+echo "🔊 [ANKA OS]: Sistem kontrol ediliyor..."
 
-# 1. C kodlarını tek bir işletim sistemi çekirdeğine (anka_os) derle
-# Arka plandaki karmaşık derleme yazılarını gizle ki şüphe çekmesin.
-if command -v clang &> /dev/null; then
-    clang boot.c -o anka_os 2>/dev/null
+# 1. Eğer hazır derlenmiş çekirdek (anka_os) varsa doğrudan çalıştır, yoksa derle
+if [ -f anka_os ]; then
+    echo "✅ [ANKA OS]: Hazır kovan çekirdeği (anka_os) bulundu. Doğrudan ateşleniyor..."
 else
-    gcc boot.c -o anka_os 2>/dev/null
+    echo "🔊 [ANKA OS]: Çekirdek bulunamadı! Sistem derleniyor, bekle kanka..."
+    # boot.c dosyası core/ klasöründe olduğu için oraya girip derliyoruz
+    if [ -f core/boot.c ]; then
+        cd core
+        if command -v clang &> /dev/null; then
+            clang boot.c -o ../anka_os 2>/dev/null
+        else
+            gcc boot.c -o ../anka_os 2>/dev/null
+        fi
+        cd ..
+    else
+        echo "❌ [HATA]: core/boot.c bulunamadı!"
+        exit 1
+    fi
 fi
 
 # Derleme başarılı oldu mu kontrolü
@@ -21,7 +33,7 @@ fi
 
 # Çalıştırma yetkisi ver
 chmod +x anka_os
-echo "✅ [ANKA OS]: Derleme tamamlandı. Motor ateşleniyor..."
+echo "✅ [ANKA OS]: Motor hazır. Ateşleniyor..."
 sleep 1
 
 # 2. Boot Logosunu Ekrana Bas (Root yetkisiyle FrameBuffer'a zorla sızıyoruz)
