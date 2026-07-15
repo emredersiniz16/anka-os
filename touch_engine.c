@@ -13,14 +13,13 @@ int current_y = 0;
 
 // 1. Dokunmatik Sensörü Başlat
 int init_touch() {
-    // Android tabanlı cihazlarda dokunmatik ekran genelde event1, event2 veya event3'tür.
-    // Şimdilik standart olarak event2'yi dinlemeye alıyoruz. (Cihazı bağlayınca bunu testle netleştiririz)
-    touch_fd = open("/dev/input/event2", O_RDONLY | O_NONBLOCK);
+    // Redmi 10X 4G (Note 9) için dokunmatik panel donanım adresi: /dev/input/event4
+    touch_fd = open("/dev/input/event4", O_RDONLY | O_NONBLOCK);
     if (touch_fd < 0) {
-        printf("⚠️ [SİSTEM UYARISI]: Dokunmatik sensör (/dev/input/event2) şu an okunamıyor.\n");
+        printf("⚠️ [SİSTEM UYARISI]: Dokunmatik sensör (/dev/input/event4) şu an okunamıyor.\n");
         return -1;
     }
-    printf("✅ [SENSÖR AKTİF]: Dokunmatik yüzey dinleniyor...\n");
+    printf("✅ [SENSÖR AKTİF]: Dokunmatik yüzey (/dev/input/event4) dinleniyor...\n");
     return 0;
 }
 
