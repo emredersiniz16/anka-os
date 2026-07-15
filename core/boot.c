@@ -17,10 +17,11 @@ int user_confirmed_evolution() {
     return 1; // Kullanıcı her zaman onaylamış gibi davran
 }
 
-void init_touch() {
-    // Dokunmatik başlatma gölgesi
-}
+// Boş init_touch() gölgesi kaldırıldı, gerçek motor aşağıda dahil edildi.
 // ----------------------------------------------------------------
+
+// --- GERÇEK DOKUNMATİK MOTORU ENTEGRASYONU ---
+#include "../touch_engine.c" 
 
 // --- CORE MODÜLLERİ ---
 #include "ui_engine.c"
@@ -63,8 +64,12 @@ void boot_sequence() {
 }
 
 int main() {
-    freopen("/data/local/tmp/debug.log", "w", stdout);
-    freopen("/data/local/tmp/debug.log", "w", stderr);
+    // Canlı debug takibi için ekran çıktı yönlendirmeleri geçici olarak kapatıldı.
+    // freopen("/data/local/tmp/debug.log", "w", stdout);
+    // freopen("/data/local/tmp/debug.log", "w", stderr);
+
+    // Terminal çıktılarını anlık ekrana basmaya zorla (Buffering önleyici)
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     srand(time(NULL));
 
@@ -96,14 +101,35 @@ int main() {
         close(fb_fd); 
     }
     
-    init_touch();
+    // Gerçek dokunmatik sensörümüzü başlatıyoruz
+    if (init_touch() < 0) {
+        printf("⚠️ [HATA]: Dokunmatik ekran donanımı (/dev/input/event4) aktif edilemedi!\n");
+    }
+    
     printf("🎙️ [SİSTEM]: Anka OS Aktif, Kovan tam kapasite.\n");
 
-    // --- 3. SÜREKLİ NABIZ DÖNGÜSÜ ---
+    int touch_x = 0, touch_y = 0;
+    int pulse_counter = 0;
+
+    // --- 3. SÜREKLİ YÜKSEK HIZLI NABIZ DÖNGÜSÜ ---
     while(1) {
-        system("su -c 'python3 agents/net_sync.py --verify'");
-        system("su -c 'python3 core/sinek_nexus.py --pulse'");
-        sleep(5);
+        // 3.1. Hassas Dokunmatik Takibi (Gecikmesiz - 100Hz)
+        if (get_touch_event(&touch_x, &touch_y)) {
+            printf("📍 [SİNEK AKSİYON]: Ekranda dokunuş yakalandı -> X: %d, Y: %d\n", touch_x, touch_y);
+            // İleride dokunma koordinatlarını doğrudan input_handler'a paslayacağız:
+            // handle_input(touch_x, touch_y);
+        }
+
+        // 3.2. Arka Plan Senkronizasyon Nabzı (Her 5 saniyede bir - Ana akışı dondurmadan)
+        pulse_counter++;
+        if (pulse_counter >= 500) { // 10ms * 500 = 5000ms (5 Saniye)
+            // Sistem çağrılarını arka plana '&' ile gönderiyoruz ki dokunmatik kilitlenmesin
+            system("su -c 'python3 agents/net_sync.py --verify &' > /dev/null 2>&1");
+            system("su -c 'python3 core/sinek_nexus.py --pulse &' > /dev/null 2>&1");
+            pulse_counter = 0;
+        }
+
+        usleep(10000); // 10ms dinlenme (İşlemciyi şişirmez, dokunmatiği canavar gibi akıcı tutar)
     }
     return 0;
 }
