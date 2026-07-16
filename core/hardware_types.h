@@ -1,3 +1,4 @@
+// core/hardware_types.h
 #ifndef HARDWARE_TYPES_H
 #define HARDWARE_TYPES_H
 
