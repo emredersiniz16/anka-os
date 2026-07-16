@@ -1,3 +1,4 @@
+// core/engines/audio_engine.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,9 +11,10 @@
 void record_audio(int duration_seconds) {
     char cmd[256];
     printf("[DONANIM] Mikrofon aktif. %d saniye dinleniyor...\n", duration_seconds);
-    sprintf(cmd, "arecord -D plughw:0,0 -d %d -f cd -t wav /tmp/anka_voice.wav > /dev/null 2>&1", duration_seconds);
+    // Android/Termux uyumu için /tmp/ yerine /data/local/tmp/ kullanıldı
+    sprintf(cmd, "arecord -D plughw:0,0 -d %d -f cd -t wav /data/local/tmp/anka_voice.wav > /dev/null 2>&1", duration_seconds);
     system(cmd);
-    printf("[DONANIM] Ses kaydı RAM'e alındı.\n");
+    printf("[DONANIM] Ses kaydı hafızaya alındı.\n");
 }
 
 // 2. AĞIZ: Hoparlöre aktarır
@@ -32,14 +34,19 @@ void speak(const char* text) {
     system(cmd);
 }
 
+// Yeni HAL (Donanım Köprüsü) ile uyumlu safe_speak sarmalayıcısı
+void safe_speak(char* text) {
+    speak(text); // Doğrudan gerçek TTS motorunu tetikler
+}
+
 // 4. UYANDIRMA (WAKE WORD): Seste "Sinek" veya "Click" var mı?
 int check_wake_word(const char* wav_path) {
     char cmd[512];
-    // Vosk ile ses analizi
-    sprintf(cmd, "vosk-transcriber --model small-model %s > /tmp/ses_sonuc.txt", wav_path);
+    // Vosk ile ses analizi - Çıktı yolu Note 9 uyumlu yapıldı
+    sprintf(cmd, "vosk-transcriber --model small-model %s > /data/local/tmp/ses_sonuc.txt", wav_path);
     system(cmd);
 
-    FILE *fp = fopen("/tmp/ses_sonuc.txt", "r");
+    FILE *fp = fopen("/data/local/tmp/ses_sonuc.txt", "r");
     if (fp) {
         char buffer[128];
         while (fgets(buffer, sizeof(buffer), fp)) {
